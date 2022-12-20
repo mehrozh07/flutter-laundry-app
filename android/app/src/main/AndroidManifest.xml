@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.laundary.laundary_system">
    <application
-        android:label="laundary_system"
+        android:label="Laundry Service"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

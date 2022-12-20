@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:laundary_system/widgets/custom_field.dart';
 
@@ -85,7 +86,7 @@ class OtpUi extends StatelessWidget {
                           child: Text('Verify',
                             style: Utils.buttonTextStyle,),
                           onPressed: (){
-
+                          Navigator.pushNamed(context, RoutesNames.mainScreen);
                           },)),
                 ],
               ),

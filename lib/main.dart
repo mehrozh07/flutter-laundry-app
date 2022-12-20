@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/routes.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const MyApp());
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
@@ -26,11 +29,22 @@ Map<int, Color> color = {
   600: const Color.fromRGBO(206, 21, 103, .7),
   700: const Color.fromRGBO(206, 21, 103, .8),
   800: const Color.fromRGBO(206, 21, 103, .9),
-  900: const Color.fromRGBO(206, 21, 103, 1),
+  900: const Color.fromRGBO(206, 21, 103,  1),
 };
-class MyApp extends StatelessWidget {
+
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    FlutterNativeSplash.remove();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
