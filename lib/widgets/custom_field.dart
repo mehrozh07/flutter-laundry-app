@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CustomField extends StatelessWidget {
   final bool? first, last;
-  const CustomField({Key? key, this.first, this.last}) : super(key: key);
+  final TextEditingController? controller;
+  const CustomField({Key? key, this.first, this.last, this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,6 +12,7 @@ class CustomField extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 0.7,
         child: TextFormField(
+          controller: controller,
           style: TextStyle(fontSize: MediaQuery.textScaleFactorOf(context)*30),
           textAlignVertical: TextAlignVertical.center,
           maxLength: 1,

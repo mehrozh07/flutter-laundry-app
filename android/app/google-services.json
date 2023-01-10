@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "264470362670",
+    "project_id": "laundry-service-c8a22",
+    "storage_bucket": "laundry-service-c8a22.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264470362670:android:c360f1902600821a3f3dbf",
+        "android_client_info": {
+          "package_name": "com.laundary.laundary_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "264470362670-217he2ufiaesblg9q6cj7hh7ih438dfj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.laundary.laundary_system",
+            "certificate_hash": "bb4de42416323d246f2bc659ee69e97ccacc0afd"
+          }
+        },
+        {
+          "client_id": "264470362670-dp1vjpabd8pcadatta2puj7lhvj8dimt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxttKVQZsBGFCHUk0yXfYWdWDkwjxCUWs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "264470362670-dp1vjpabd8pcadatta2puj7lhvj8dimt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

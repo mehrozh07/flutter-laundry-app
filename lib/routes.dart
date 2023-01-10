@@ -12,7 +12,7 @@ class Routes{
     switch(settings.name){
       case RoutesNames.phoneLogin:
         // Map arguments = (settings.arguments??{'title': "Home"}) as Map;
-        return CupertinoPageRoute(builder: (_)=> const PhoneLoginUi(
+        return CupertinoPageRoute(builder: (_)=> PhoneLoginUi(
           // title: arguments['title'],
         ));
       case RoutesNames.otpScreen:

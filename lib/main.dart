@@ -1,24 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laundary_system/auth-bloc/auth_cubit.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/routes.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-Future<void> main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const MyApp());
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: const Color(0XFF8DC73F).withOpacity(0.5),
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarDividerColor: Colors.grey,
-      statusBarBrightness: Brightness.dark,
-    ),
-  );
-}
 Map<int, Color> color = {
   50: const Color.fromRGBO(206, 21, 103, .1),
   100: const Color.fromRGBO(206, 21, 103, .2),
@@ -29,8 +17,26 @@ Map<int, Color> color = {
   600: const Color.fromRGBO(206, 21, 103, .7),
   700: const Color.fromRGBO(206, 21, 103, .8),
   800: const Color.fromRGBO(206, 21, 103, .9),
-  900: const Color.fromRGBO(206, 21, 103,  1),
+  900: const Color.fromRGBO(206, 21, 103, 1),
 };
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await Firebase.initializeApp();
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider(create: (_) => AuthCubit()),
+  ], child: const MyApp()));
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: const Color(0XFF8DC73F).withOpacity(0.5),
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarDividerColor: Colors.grey,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -45,6 +51,7 @@ class _MyAppState extends State<MyApp> {
     FlutterNativeSplash.remove();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

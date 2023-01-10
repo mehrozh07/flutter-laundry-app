@@ -1,5 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laundary_system/auth-bloc/auth_cubit.dart';
 import 'package:laundary_system/generated/assets.dart';
+import 'package:laundary_system/pages/auth-screens/phone_login_ui.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 
 class AccountPage extends StatelessWidget {
@@ -9,11 +13,15 @@ class AccountPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings', style: Utils.appBarStyle,),
+        title: Text(
+          'Settings',
+          style: Utils.appBarStyle,
+        ),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
       body: ListView(
+        padding: const EdgeInsets.only(left: 8, right: 8),
         children: [
           CircleAvatar(
             radius: 60,
@@ -23,9 +31,89 @@ class AccountPage extends StatelessWidget {
               backgroundImage: AssetImage(Assets.assetsProfile),
             ),
           ),
-           Text('Mehrooz Hassan',
+          Text('Mehrooz Hassan',
+              textAlign: TextAlign.center, style: Utils.itemCount),
+          const Text('Flutter Developer',
               textAlign: TextAlign.center,
-              style: Utils.itemCount),
+              style: TextStyle(
+                color: Color(0xff82858A),
+                fontSize: 16,
+              )),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
+          ),
+          Card(
+            color: const Color(0xffE9EBF0),
+            child: Column(
+              children: const [
+                ListTile(
+                  title: Text('Account Info'),
+                  trailing: Icon(CupertinoIcons.person),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('My Address'),
+                  trailing: Icon(CupertinoIcons.location),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Change Password'),
+                  trailing: Icon(CupertinoIcons.lock_shield),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
+          ),
+          Text('Others', textAlign: TextAlign.start, style: Utils.itemCount),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
+          ),
+          Card(
+            color: const Color(0xffE9EBF0),
+            child: Column(
+              children: const [
+                ListTile(
+                  title: Text('Reports & Feedback'),
+                  trailing: Icon(CupertinoIcons.text_bubble),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Refer & Earn'),
+                  trailing: Icon(Icons.share),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('App Notification'),
+                  trailing: Icon(CupertinoIcons.bell),
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('Settings'),
+                  trailing: Icon(CupertinoIcons.settings_solid),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.01,
+          ),
+      BlocConsumer<AuthCubit, AuthState>(
+  listener: (context, state) {
+    if(state is AuthLogOutState){
+      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context)=> PhoneLoginUi()));
+    }
+  },
+  builder: (context, state) {
+    return TextButton(
+          onPressed: () {
+            BlocProvider.of<AuthCubit>(context).logout();
+          },
+          child: const Text('Logout'));
+  },
+)
         ],
       ),
     );
