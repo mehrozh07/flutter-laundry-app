@@ -1,12 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:laundary_system/generated/assets.dart';
+import 'package:laundary_system/models/catogory_model.dart';
+import 'package:laundary_system/models/service_model.dart';
+import 'package:laundary_system/providers/service_provider.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
+import 'package:provider/provider.dart';
 
 class OrderList extends StatefulWidget {
-  const OrderList({Key? key}) : super(key: key);
+  final CategoryModel? categoryModel;
+  const OrderList({Key? key, this.categoryModel}) : super(key: key);
+
 
   @override
   State<OrderList> createState() => _OrderListState();
@@ -40,8 +45,10 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    var serviceProvider = Provider.of<ServiceProvider>(context);
+    serviceProvider.getService();
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xffFFFFFF),
       appBar: AppBar(
         centerTitle: true,
         title: Text('Order List', style: Utils.appBarStyle,),
@@ -50,7 +57,16 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
         height: height*0.19,
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10),)
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black54,
+              blurRadius: 8,
+              spreadRadius: 0.6,
+              offset: Offset(0.1, 0.1),
+            )
+          ],
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),)
         ),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -160,8 +176,9 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
           ),
           SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount: 20,
+                childCount: widget.categoryModel?.services?.length,
                       (context, index){
+                  ServiceModel service = serviceProvider.serviceList[index];
                   return Padding(
                     padding: const EdgeInsets.only(left: 12, right: 12, top: 5, bottom: 10),
                     child: Container(
@@ -169,18 +186,26 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                       width: double.infinity,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: const Color(0xffF9F9F9)
+                        color: const Color(0xffF9F9F9),
                       ),
                       child: ListTile(
-                        leading: Image.network('https://cdn-icons-png.flaticon.com/512/20/20092.png',
+                        leading: Image.network('${widget.categoryModel?.services?[index]['image']}',
+                          alignment: Alignment.center,
                           color: const Color(0xff38106A),
-                          height: 38,width: 38,),
-                        title: Text('T-Shirt', style: Utils.orderListName,),
+                          height: 38,
+                          width:  38,
+                        ),
+                         //    :
+                         // Image.asset(Assets.assetsAppIcon,
+                         //   height: 38,width: 38,),
+                        title: Text('${widget.categoryModel?.services?[index]['name']}',
+                          style: Utils.orderListName,),
                         subtitle: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           alignment: WrapAlignment.start,
                           children: [
-                            Text('\$5', style: Utils.headlineTextStyle,),
+                            Text('Rs.${widget.categoryModel?.services?[index]['price']}',
+                              style: Utils.headlineTextStyle,),
                             SizedBox(width: width*0.01,),
                             SizedBox(
                               height: height*0.07,
@@ -203,10 +228,12 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                                     ),
                                     child: DropdownButtonHideUnderline(
                                       child: DropdownButton<String>(
-                                        icon: const Icon(CupertinoIcons.chevron_down),
+                                        icon: const Icon(CupertinoIcons.chevron_down,
+                                          color: Color(0xff38106A),
+                                        ),
                                         style: Utils.simpleText,
                                         hint: Text(
-                                          "mm",
+                                          "gender?",
                                           style: Utils.simpleText,
                                         ),
                                         items: categoryList
@@ -290,6 +317,9 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                   );
           }),
           ),
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: height*0.2),
+          )
         ],
       ),
     );

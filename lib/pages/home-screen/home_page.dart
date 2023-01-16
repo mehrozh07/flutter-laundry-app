@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/models/catogory_model.dart';
+import 'package:laundary_system/pages/order-screens/order_list.dart';
 import 'package:laundary_system/providers/categories_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/route_names.dart';
@@ -110,11 +111,16 @@ class HomePage extends StatelessWidget {
                     itemCount: catProvider.categoriesList.length,
                     itemBuilder: (BuildContext context, int index) {
                       CategoryModel model = catProvider.categoriesList[index];
+                      // print(model.services?.length);
                       return Padding(
                         padding: const EdgeInsets.only(left: 8, right: 8),
                         child: InkWell(
                           onTap: (){
-                            Navigator.pushNamed(context, RoutesNames.orderList);
+                            Navigator.push(context,
+                                CupertinoPageRoute(builder: (context) => OrderList(
+                              categoryModel: model,
+                            )));
+                            print(model.serviceName);
                           },
                           child: Container(
                             height: 84,
@@ -138,7 +144,7 @@ class HomePage extends StatelessWidget {
                                   width: 38,
                                   color: const Color(0xff38106A),
                                 ),
-                                Text('${model.service}',
+                                Text('${model.serviceName}',
                                   style: Utils.simpleText,),
                               ],
                             ),
