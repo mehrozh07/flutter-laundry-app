@@ -11,6 +11,11 @@ class AuthLoggedInState extends AuthState{
   AuthLoggedInState(this.user);
 }
 
+class AuthFillFormState extends AuthState{
+  // User? user;
+  // AuthFillFormState(this.user);
+}
+
 class AuthCodeSendState extends AuthState{}
 
 class AuthVerifyCodeState extends AuthState{}

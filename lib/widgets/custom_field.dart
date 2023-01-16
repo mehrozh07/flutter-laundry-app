@@ -10,7 +10,7 @@ class CustomField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: AspectRatio(
-        aspectRatio: 0.7,
+        aspectRatio: 0.9,
         child: TextFormField(
           controller: controller,
           style: TextStyle(fontSize: MediaQuery.textScaleFactorOf(context)*30),
@@ -33,6 +33,10 @@ class CustomField extends StatelessWidget {
           },
           decoration: InputDecoration(
               counter: const Offstage(),
+              contentPadding: EdgeInsets.zero,
+              filled: true,
+              fillColor: controller!.text.isEmpty?
+              Colors.grey.shade100 : Theme.of(context).primaryColor.withOpacity(0.1),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

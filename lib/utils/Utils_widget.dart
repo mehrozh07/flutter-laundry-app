@@ -8,6 +8,7 @@ static flushBarMessage(context, text, bgColor,){
         color: Color(0xFFFFEFFF),
       ),),
       backgroundColor: bgColor,
+     duration: const Duration(seconds: 4),
      shape: RoundedRectangleBorder(
        borderRadius: BorderRadius.circular(5),
      ),

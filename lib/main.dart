@@ -1,11 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laundary_system/auth-bloc/auth_cubit.dart';
+import 'package:laundary_system/providers/categories_provider.dart';
+import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/routes.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:provider/provider.dart';
+
 
 Map<int, Color> color = {
   50: const Color.fromRGBO(206, 21, 103, .1),
@@ -26,7 +31,12 @@ Future<void> main() async {
   await Firebase.initializeApp();
   runApp(MultiBlocProvider(providers: [
     BlocProvider(create: (_) => AuthCubit()),
-  ], child: const MyApp()));
+  ], child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=> CategoriesProvider()),
+        ChangeNotifierProvider(create: (_)=> UserProvider()),
+      ],
+  child: const MyApp())));
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -62,7 +72,7 @@ class _MyAppState extends State<MyApp> {
         primaryColor: const Color(0xffCE1567),
         useMaterial3: true,
       ),
-      initialRoute: RoutesNames.phoneLogin,
+      initialRoute: FirebaseAuth.instance.currentUser == null ? RoutesNames.phoneLogin : RoutesNames.mainScreen,
       onGenerateRoute: Routes.onGenerateRoutes,
     );
   }

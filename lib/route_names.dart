@@ -6,4 +6,5 @@ static const String homePage = "Home-Page";
 static const String registerScreen = "register-screen";
 static const String orderList = "Order-List";
 static const String scheduledPickUp = "Scheduled-PickUp";
+static const String orderDetails = "Order-Details";
 }

@@ -4,13 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laundary_system/auth-bloc/auth_cubit.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/pages/auth-screens/phone_login_ui.dart';
+import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
+import 'package:provider/provider.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var userProvider = Provider.of<UserProvider>(context);
+    userProvider.getUserData();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -31,11 +35,18 @@ class AccountPage extends StatelessWidget {
               backgroundImage: AssetImage(Assets.assetsProfile),
             ),
           ),
-          Text('Mehrooz Hassan',
-              textAlign: TextAlign.center, style: Utils.itemCount),
-          const Text('Flutter Developer',
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.center,
+            children: [
+              Text('${userProvider.documentSnapshot?['name']}',
+                  textAlign: TextAlign.center, style: Utils.itemCount),
+              const Icon(Icons.edit),
+            ],
+          ),
+           Text('${userProvider.documentSnapshot?['status']}',
               textAlign: TextAlign.center,
-              style: TextStyle(
+               style: const TextStyle(
                 color: Color(0xff82858A),
                 fontSize: 16,
               )),
@@ -99,21 +110,22 @@ class AccountPage extends StatelessWidget {
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.01,
           ),
-      BlocConsumer<AuthCubit, AuthState>(
-  listener: (context, state) {
-    if(state is AuthLogOutState){
-      Navigator.popUntil(context, (route) => route.isFirst);
-      Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context)=> PhoneLoginUi()));
-    }
-  },
-  builder: (context, state) {
-    return TextButton(
-          onPressed: () {
-            BlocProvider.of<AuthCubit>(context).logout();
-          },
-          child: const Text('Logout'));
-  },
-)
+          BlocConsumer<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthLogOutState) {
+                Navigator.popUntil(context, (route) => route.isFirst);
+                Navigator.pushReplacement(context,
+                    CupertinoPageRoute(builder: (context) => PhoneLoginUi()));
+              }
+            },
+            builder: (context, state) {
+              return TextButton(
+                  onPressed: () {
+                    BlocProvider.of<AuthCubit>(context).logout();
+                  },
+                  child: const Text('Logout'));
+            },
+          )
         ],
       ),
     );

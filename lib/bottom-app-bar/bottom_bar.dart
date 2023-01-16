@@ -76,13 +76,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   NavigationDestination(
                     icon: const Icon(CupertinoIcons.suit_heart),
-                    selectedIcon: Icon(CupertinoIcons.suit_heart,
+                    selectedIcon: Icon(CupertinoIcons.heart_fill,
                       color: Theme.of(context).primaryColor,),
                     label: 'Offer',
                   ),
                   NavigationDestination(
                     icon: const Icon(CupertinoIcons.gear),
-                    selectedIcon: Icon(CupertinoIcons.gear_big,
+                    selectedIcon: Icon(Icons.settings,
                       color: Theme.of(context).primaryColor,),
                     label: 'Profile',
                   ),

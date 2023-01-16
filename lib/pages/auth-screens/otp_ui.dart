@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laundary_system/auth-bloc/auth_cubit.dart';
 import 'package:laundary_system/bottom-app-bar/bottom_bar.dart';
+import 'package:laundary_system/pages/home-screen/fill_form.dart';
 import 'package:laundary_system/pages/home-screen/home_page.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
@@ -133,11 +134,12 @@ class OtpUi extends StatelessWidget {
                         Navigator.popUntil(context, (route) => route.isFirst);
                         Navigator.pushReplacement(context, CupertinoPageRoute(
                             builder: (context)=> const MainScreen()));
-                      }else{
-                        if(state is ErrorState){
-                          Utils.flushBarMessage(context, state.error, Colors.red);
+                      }else if(state is AuthFillFormState){
+                        Navigator.pushReplacement(context, CupertinoPageRoute(
+                            builder: (context)=> FillForm()));
+                      }else if(state is ErrorState){
+                          Utils.flushBarMessage(context, state.error, const Color(0xffED5050));
                         }
-                      }
                     },
                     builder: (context, state) {
                       if(state is AuthLoadingState){
@@ -146,21 +148,27 @@ class OtpUi extends StatelessWidget {
                             barrierDismissible: false,
                             builder: (BuildContext dialogContext) {
                               return Center(child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
+                                valueColor: AlwaysStoppedAnimation(Theme.of(dialogContext).primaryColor),
                               ));
                             });
                       }
                       return CupertinoButton(
                         color: Theme.of(context).primaryColor,
+                        padding: EdgeInsets.zero,
                         child: Text(
                           'Verify',
                           style: Utils.buttonTextStyle,
                         ),
                         onPressed: () {
                           BlocProvider.of<AuthCubit>(context).verifyOTP(
+                              otp:
                               otpController1.text+otpController2.text+otpController3.text+
                               otpController4.text+otpController5.text+otpController6.text,
-                              context);
+                              context: context,
+                          );
+                          // if(BlocProvider.of<AuthCubit>(context).auth != null){
+                          //
+                          // }
                         },
                       );
                     },
