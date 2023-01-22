@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:laundary_system/services/cart_service.dart';
 import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../../widgets/add_to_cart_widget.dart';
 
 class OrderList extends StatefulWidget {
@@ -59,6 +59,7 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
     serviceProvider.getService();
     serviceProvider.getProductByCategory(widget.categoryName!);
     cartProvider.getSubTotal();
+    cartProvider.confirmOrder();
     return Scaffold(
       backgroundColor: const Color(0xffFFFFFF),
       appBar: AppBar(
@@ -126,7 +127,8 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                       color: Theme.of(context).primaryColor,
                         child: const Text('Confirm Order'),
                         onPressed: (){
-                        Navigator.pushNamed(context, RoutesNames.scheduledPickUp);
+                        orderPlaced(cartProvider: cartProvider, paying: cartProvider.total, context: context);
+                        // Navigator.pushNamed(context, RoutesNames.scheduledPickUp);
                         }),
                   ),
                 ],
@@ -255,8 +257,7 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                                           "gender?",
                                           style: Utils.simpleText,
                                         ),
-                                        items: categoryList
-                                            .map<DropdownMenuItem<String>>(
+                                        items: categoryList.map<DropdownMenuItem<String>>(
                                                 (String? value) {
                                               return DropdownMenuItem(
                                                 value: value,
@@ -301,4 +302,25 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
       ),
     );
   }
+  orderPlaced({required CartProvider cartProvider, paying, context}){
+    cartService.orderPlacing({
+      "laundries": cartProvider.orderPlaced,
+      "userId": FirebaseAuth.instance.currentUser?.uid,
+      "customerPhone": FirebaseAuth.instance.currentUser?.phoneNumber,
+      "totalPaying": paying,
+      "orderPlacingTime": DateTime.now(),
+      "orderStatus": "Placed",
+      "assignedDeliveryBoy": {
+        "name": "",
+        "phone": "",
+        "location": "",
+        "email": "",
+      }
+    }).then((value){
+      userService.deleteCart().then((value){
+        Navigator.pushReplacementNamed(context, RoutesNames.scheduledPickUp);
+      });
+    });
+  }
+
 }

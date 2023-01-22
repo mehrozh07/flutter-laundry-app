@@ -25,9 +25,8 @@ class UserService{
       'price': price,
       "serviceType": serviceType,
       'quantity': 1,
-      "cartId": "cartId",
+      "cartId": user?.uid,
       "total": price,
-      // 'total': document['price']
     });
   }
 
@@ -54,7 +53,13 @@ class UserService{
       // Utils.flushBarMessage(context, "Failed to update cart!", const Color(0xffFF8C00));
     });
   }
-
+  Future<void> deleteCart() async{
+    final result = await cart.doc(user?.uid).collection('products').get().then((value){
+      for(DocumentSnapshot ds in value.docs){
+        ds.reference.delete();
+      }
+    });
+  }
 
   Future<void> checkCart({docId,context}) async{
     final snapShot = await cart.doc(user?.uid).collection('products').get();

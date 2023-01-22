@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SearchPage extends StatelessWidget {
-  const SearchPage({Key? key}) : super(key: key);
+class CartPage extends StatelessWidget {
+  const CartPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +10,7 @@ class SearchPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: const [
           Center(
-            child: Text('Search'),
+            child: Text('Cart'),
           )
         ],
       ),

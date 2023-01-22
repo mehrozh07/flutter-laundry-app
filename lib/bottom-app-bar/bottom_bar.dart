@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/pages/account-screen/account_page.dart';
+import 'package:laundary_system/pages/cart-screen/cart_page.dart';
 import 'package:laundary_system/pages/home-screen/home_page.dart';
-import 'package:laundary_system/pages/offer-screen/offer_page.dart';
-
-import '../pages/search-scree/search_page.dart';
+import 'package:laundary_system/pages/order-screen/order_page.dart';
 
 class MainScreen extends StatefulWidget {
   static const id = '/main-screen';
@@ -18,9 +17,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final screens = [
     const HomePage(),
-    // ExploreScreen(search: [],),
-    const SearchPage(),
-    const OfferPage(),
+    const CartPage(),
+    const OrderPage(),
     const AccountPage(),
   ];
   int selectedIndex = 0;
@@ -58,9 +56,9 @@ class _MainScreenState extends State<MainScreen> {
                 backgroundColor: Colors.white,
                 destinations: [
                   NavigationDestination(
-                    icon: const Icon(CupertinoIcons.house_alt),
+                    icon: const Icon(CupertinoIcons.house_fill),
                     label: 'Home',
-                    selectedIcon: Icon(CupertinoIcons.house_alt,
+                    selectedIcon: Icon(CupertinoIcons.house_fill,
                       color: Theme.of(context).primaryColor,),
                   ),
                   // NavigationDestination(
@@ -69,16 +67,16 @@ class _MainScreenState extends State<MainScreen> {
                   //   label: 'Explore',
                   // ),
                   NavigationDestination(
-                    icon: const Icon(CupertinoIcons.search),
-                    selectedIcon: Icon(CupertinoIcons.search,
+                    icon: const Icon(Icons.shopping_cart),
+                    selectedIcon: Icon(Icons.shopping_cart,
                       color: Theme.of(context).primaryColor,),
                     label: 'Cart',
                   ),
                   NavigationDestination(
-                    icon: const Icon(CupertinoIcons.suit_heart),
-                    selectedIcon: Icon(CupertinoIcons.heart_fill,
+                    icon: const Icon(CupertinoIcons.bag_fill),
+                    selectedIcon: Icon(CupertinoIcons.bag_fill,
                       color: Theme.of(context).primaryColor,),
-                    label: 'Offer',
+                    label: 'Orders',
                   ),
                   NavigationDestination(
                     icon: const Icon(CupertinoIcons.gear),

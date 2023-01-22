@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
+import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
+import 'package:provider/provider.dart';
 
 class SchedulePickup extends StatefulWidget {
    SchedulePickup({Key? key}) : super(key: key);
@@ -22,20 +24,32 @@ class _SchedulePickupState extends State<SchedulePickup> {
       _category = newSelectedBank;
     });
   }
+  DateTime? _startDate;
+  DateTime? _endDate;
+
   @override
   void initState() {
    _category = categoryList[0];
     super.initState();
   }
+  DateTimeRange dateTimeRange = DateTimeRange(
+    start: DateTime.now(),
+    end:   DateTime(DateTime.now().year + 1),
+  );
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    var cartProvider = Provider.of<CartProvider>(context);
+    cartProvider.getSubTotal();
+    final startDate = dateTimeRange.start;
+    final endDate = dateTimeRange.end;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: Text('Scheduled A PickUp', style: Utils.appBarStyle,),
       ),
       bottomSheet: Container(
@@ -77,14 +91,14 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Subtotal',style: Utils.simpleText),
-                      Text('\$220.23',style: Utils.itemCount),
+                      Text('Rs.${cartProvider.total}',style: Utils.itemCount),
                     ],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Tax',style: Utils.simpleText),
-                      Text('\$10',style: Utils.itemCount),
+                      Text('Rs.10', style: Utils.itemCount),
                     ],
                   ),
                   const Divider(),
@@ -92,7 +106,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Total',style: Utils.orderListName),
-                      Text('\$230.23',style: Utils.headlineTextStyle),
+                      Text('Rs.${cartProvider.total+10}',style: Utils.headlineTextStyle),
                     ],
                   ),
                 ],
@@ -111,9 +125,10 @@ class _SchedulePickupState extends State<SchedulePickup> {
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: "Pickup Time",
-                    prefixText: "Thu, 1 Apr \n 10 : 20 : 00",
+                    // prefixText: "${startDate.day},${startDate.month},${startDate.month} "
+                    //     "\n 10 : 20 : 00",
                     prefixIcon: InkWell(
-                        onTap: (){
+                        onTap: () async{
                           showDateRangePicker(
                             context: context,
                               initialEntryMode: DatePickerEntryMode.calendar,
@@ -123,28 +138,18 @@ class _SchedulePickupState extends State<SchedulePickup> {
                               lastDate: DateTime(3050),
                               builder: (context, Widget? child) => Theme(
                                 data: ThemeData.dark().copyWith(
-                                  //Header background color
                                   primaryColor: Theme.of(context).primaryColor,
-                                  //Background color
-                                  scaffoldBackgroundColor: Colors.grey[50],
-                                  // //Divider color
-                                  // dividerColor: Colors.grey,
-                                  // //Non selected days of the month color
+                                  scaffoldBackgroundColor: Colors.grey.shade50,
                                   textTheme: const TextTheme(
                                     bodyText2: TextStyle(color: Colors.black),
                                   ),
                                     colorScheme: ColorScheme.fromSwatch().copyWith(
-                                      //Selected dates background color
                                       primary: Theme.of(context).primaryColor,
-                                      //Month title and week days color
                                       onSurface: Theme.of(context).primaryColor,
-                                      //Header elements and selected dates text color
-                                      //onPrimary: Colors.white,
                                     ),
                                 ),
                                 child: child!,
                           ));
-                         print('tapped');
                         },
                         child: const Icon(CupertinoIcons.calendar_badge_plus)),
                   ),
@@ -154,19 +159,12 @@ class _SchedulePickupState extends State<SchedulePickup> {
               Expanded(
                 child: TextFormField(
                   readOnly: true,
-                  autofocus: true,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: "Delivery Time",
-                    prefixText: "Thu, 1 Apr \n 10 : 20 : 00",
+                    prefixText: "${endDate.day},${endDate.month},${endDate.month} \n 10 : 20 : 00",
                     prefixIcon:InkWell(
-                        onTap: (){
-                          showDateRangePicker(
-                            context: context,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(3050),
-                          );
-                        },
+                        onTap: ()=>cartProvider.pickDateRange(context, dateTimeRange),
                         child: const Icon(CupertinoIcons.calendar_today)),
                   ),
                 ),
