@@ -1,12 +1,12 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/models/catogory_model.dart';
 import 'package:laundary_system/pages/order-screens/order_list.dart';
 import 'package:laundary_system/providers/categories_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
-import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +19,7 @@ class HomePage extends StatelessWidget {
     var width = MediaQuery.of(context).size.width;
     var catProvider = Provider.of<CategoriesProvider>(context);
     var userProvider = Provider.of<UserProvider>(context);
+
     catProvider.category();
     userProvider.getUserData();
     return SafeArea(
@@ -118,9 +119,11 @@ class HomePage extends StatelessWidget {
                           onTap: (){
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) => OrderList(
-                              categoryModel: model,
+                                  categoryName: model.serviceName,
                             )));
-                            print(model.serviceName);
+                            if (kDebugMode) {
+                              print(model.serviceName);
+                            }
                           },
                           child: Container(
                             height: 84,

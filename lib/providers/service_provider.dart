@@ -24,4 +24,25 @@ class ServiceProvider extends ChangeNotifier{
     _serviceList = newList;
     notifyListeners();
   }
+
+  List<ServiceModel> _categoryByProduct = [];
+
+  List<ServiceModel> get categoryProductByCategoies => _categoryByProduct;
+
+  Future getProductByCategory(String catName) async{
+    List<ServiceModel> catgory = [];
+    QuerySnapshot snapshot = await db.collection('products').get();
+    ServiceModel productModel;
+    for (QueryDocumentSnapshot element in snapshot.docs) {
+      if (element.exists) {
+        if(catName== element['serviceType']){
+          productModel = ServiceModel.fromJson(element.data());
+          catgory.add(productModel);
+          notifyListeners();
+        }
+      }
+    }
+    _categoryByProduct = catgory;
+    notifyListeners();
+  }
 }

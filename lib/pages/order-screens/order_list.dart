@@ -1,16 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:laundary_system/models/catogory_model.dart';
-import 'package:laundary_system/models/service_model.dart';
 import 'package:laundary_system/providers/service_provider.dart';
+import 'package:laundary_system/models/service_model.dart';
+import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/route_names.dart';
+import 'package:laundary_system/services/cart_service.dart';
+import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/add_to_cart_widget.dart';
+
 class OrderList extends StatefulWidget {
-  final CategoryModel? categoryModel;
-  const OrderList({Key? key, this.categoryModel}) : super(key: key);
+  final String? categoryName;
+  const OrderList({Key? key, this.categoryName}) : super(key: key);
 
 
   @override
@@ -22,7 +26,8 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
 
   List<String> options = [
     'Wash', 'Ironing', 'Fold',
-    'Dry', 'Clean', 'Wash&Dry','Wash&Ironing', "Ironing&Clean",
+    'Dry', 'Clean', 'Wash&Dry',
+    'Wash&Ironing', "Ironing&Clean",
   ];
   String? _category = '';
 
@@ -32,6 +37,8 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
       _category = newSelectedBank;
     });
   }
+  UserService userService = UserService();
+  CartService cartService = CartService();
 
   @override
   void initState() {
@@ -41,17 +48,22 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
   }
   int i = 0;
   int tag = 0;
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    var text = MediaQuery.textScaleFactorOf(context);
     var serviceProvider = Provider.of<ServiceProvider>(context);
+    var cartProvider = Provider.of<CartProvider>(context);
     serviceProvider.getService();
+    serviceProvider.getProductByCategory(widget.categoryName!);
+    cartProvider.getSubTotal();
     return Scaffold(
       backgroundColor: const Color(0xffFFFFFF),
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Order List', style: Utils.appBarStyle,),
+        title: Text('Order List', style: Utils.appBarStyle),
       ),
       bottomSheet: Container(
         height: height*0.19,
@@ -89,18 +101,20 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                   ),
                   onPressed: () {},
                 ),
-                title: Text('Total', style: Utils.subtitle,),
-                subtitle: const Text('16 Items',
+                title: Text('Total', style: Utils.subtitle),
+                subtitle: Text('${cartProvider.totalQuantity}',
                   style: TextStyle(
-                  fontSize: 18,
-                  color: Color(0xff292929),
+                  fontSize: text*18,
+                  color: const Color(0xff292929),
                   fontWeight: FontWeight.bold,
                  ),
                 ),
                 trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Cost', style: Utils.subtitle,),
-                    Text('18\$', style: Utils.headlineTextStyle,),
+                    Text('Cost', style: Utils.subtitle),
+                    Text('Rs.${cartProvider.total}',
+                        style: Utils.headlineTextStyle),
                   ],
                 ),
               ),
@@ -168,7 +182,8 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                              fontSize: 16,
                              color: options[index].isEmpty ? Colors.black54 : const Color(0xff38106A),
                              fontWeight: FontWeight.bold,
-                           ),),
+                           ),
+                         ),
                        );
                          }),
              ),
@@ -176,9 +191,9 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
           ),
           SliverList(
               delegate: SliverChildBuilderDelegate(
-                childCount: widget.categoryModel?.services?.length,
+                childCount: serviceProvider.categoryProductByCategoies.length,
                       (context, index){
-                  ServiceModel service = serviceProvider.serviceList[index];
+                  ServiceModel service = serviceProvider.categoryProductByCategoies[index];
                   return Padding(
                     padding: const EdgeInsets.only(left: 12, right: 12, top: 5, bottom: 10),
                     child: Container(
@@ -189,24 +204,28 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                         color: const Color(0xffF9F9F9),
                       ),
                       child: ListTile(
-                        leading: Image.network('${widget.categoryModel?.services?[index]['image']}',
+                        leading: Image.network('${service.image}',
                           alignment: Alignment.center,
                           color: const Color(0xff38106A),
                           height: 38,
                           width:  38,
                         ),
-                         //    :
-                         // Image.asset(Assets.assetsAppIcon,
-                         //   height: 38,width: 38,),
-                        title: Text('${widget.categoryModel?.services?[index]['name']}',
-                          style: Utils.orderListName,),
+                        title: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text('${service.name}',
+                              style: Utils.orderListName),
+                            Text(' (${service.serviceType})',
+                              style: Utils.textSubtitle),
+                          ],
+                        ),
                         subtitle: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
                           alignment: WrapAlignment.start,
                           children: [
-                            Text('Rs.${widget.categoryModel?.services?[index]['price']}',
+                            Text('Rs.${service.price}',
                               style: Utils.headlineTextStyle,),
-                            SizedBox(width: width*0.01,),
+                            SizedBox(width: width*0.01),
                             SizedBox(
                               height: height*0.07,
                               width: width*0.26,
@@ -264,53 +283,11 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                                 },
                               ),
                             ),
-                            // Text('Men', style: Utils.simpleText,),
                           ],
                         ),
-                        trailing: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: IconButton(
-                                style: IconButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  side: const BorderSide(
-                                    color: Color(0xffC3C8D2),
-                                  ),
-                                ),
-                                onPressed: (){
-                                  setState(() {
-                                    i--;
-                                  });
-                                },
-                                icon: const Icon(CupertinoIcons.minus),
-                              ),
-                            ),
-                            SizedBox(width: width*0.01,),
-                            Text('$i',style: Utils.itemCount,),
-                            SizedBox(width: width*0.01,),
-                            SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: IconButton(
-                                  style: IconButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    side: const BorderSide(
-                                      color: Color(0xffC3C8D2),
-                                    ),
-                                  ),
-                                  onPressed: (){
-                                    setState(() {
-                                      i++;
-                                    });
-                                  },
-                                  icon: const Icon(CupertinoIcons.add)),
-                            ),
-                          ],
+                        trailing: AddToCartWidget(
+                          service: service,
+                          productId: service.productId,
                         ),
                       ),
                     ),
@@ -319,7 +296,7 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
           ),
           SliverPadding(
             padding: EdgeInsets.only(bottom: height*0.2),
-          )
+          ),
         ],
       ),
     );

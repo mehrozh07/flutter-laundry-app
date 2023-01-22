@@ -57,6 +57,11 @@ static TextStyle appBarStyle = const TextStyle(
   color: Color(0xff292929),
   fontWeight: FontWeight.normal,
 );
+static TextStyle masterCard = const TextStyle(
+  fontSize: 18,
+  color: Color(0xff292929),
+  fontWeight: FontWeight.normal,
+);
 static TextStyle subtitle = const TextStyle(
   fontSize: 15,
   color: Color(0xff82858A),

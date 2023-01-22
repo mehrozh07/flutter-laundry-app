@@ -150,6 +150,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                   ),
                 ),
               ),
+              SizedBox(width: width*0.02),
               Expanded(
                 child: TextFormField(
                   readOnly: true,
@@ -219,7 +220,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                     child: const Icon(Icons.close)),
                               ),
                               const Divider(thickness: 2,),
-                              Text('Card Number', style: Utils.appBarStyle,),
+                              Text('Card Number', style: Utils.masterCard,),
                               TextFormField(
                                 controller: cardNumber,
                                 keyboardType: TextInputType.number,
@@ -248,211 +249,149 @@ class _SchedulePickupState extends State<SchedulePickup> {
                               ),
                               Row(
                                 children: [
-                                  // Text('Card Number', style: Utils.appBarStyle,),
                                   Expanded(
                                     flex: 2,
-                                    child: Row(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Text('Card Number', style: Utils.appBarStyle,),
-                                        Expanded(
-                                          child: FormField<String>(
-                                            // validator: (value){
-                                            //   if(value!.isEmpty){
-                                            //     return "*gender";
-                                            //   }
-                                            //   setState(() {
-                                            //     _category = value;
-                                            //   });
-                                            //   return null;
-                                            // },
-                                            builder: (FormFieldState<String> state) {
-                                              return InputDecorator(
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                    const EdgeInsets.fromLTRB(12, 10, 20, 20),
-                                                    // errorText: "Wrong Choice",
-                                                    errorStyle: const TextStyle(
-                                                        color: Colors.redAccent, fontSize: 16.0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                        BorderRadius.circular(10.0)),
-                                                ),
-                                                child: DropdownButtonHideUnderline(
-                                                  child: DropdownButton<String>(
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.grey,
-                                                    ),
-                                                    hint: const Text(
-                                                      "mm",
-                                                      style: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                    items: categoryList
-                                                        .map<DropdownMenuItem<String>>(
-                                                            (String? value) {
-                                                          return DropdownMenuItem(
-                                                            value: value,
-                                                            child: Row(
-                                                              children: [
-                                                                const SizedBox(
-                                                                  width: 15,
-                                                                ),
-                                                                Text(value!),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        }).toList(),
-
-                                                    isExpanded: true,
-                                                    isDense: true,
-                                                    onChanged: (String? newSelectedBank) {
-                                                      _onDropDownItemSelected(newSelectedBank);
-                                                    },
-                                                    value: _category,
-
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                        Wrap(
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            Text('Card Number ', style: Utils.masterCard,),
+                                            Text('(Month - year)', style: Utils.textSubtitle,),
+                                          ],
                                         ),
-                                        Expanded(
-                                          child: FormField<String>(
-                                            // validator: (value){
-                                            //   if(value!.isEmpty){
-                                            //     return "*gender";
-                                            //   }
-                                            //   setState(() {
-                                            //     _category = value;
-                                            //   });
-                                            //   return null;
-                                            // },
-                                            builder: (FormFieldState<String> state) {
-                                              return InputDecorator(
-                                                decoration: InputDecoration(
-                                                    contentPadding:
-                                                    const EdgeInsets.fromLTRB(12, 10, 20, 20),
-                                                    // errorText: "Wrong Choice",
-                                                    errorStyle: const TextStyle(
-                                                        color: Colors.redAccent, fontSize: 16.0),
-                                                    border: OutlineInputBorder(
-                                                        borderRadius:
-                                                        BorderRadius.circular(10.0))),
-                                                child: DropdownButtonHideUnderline(
-                                                  child: DropdownButton<String>(
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.grey,
+                                        Row(
+                                          children: [
+                                            //
+                                            Expanded(
+                                              child: FormField<String>(
+                                                builder: (FormFieldState<String> state) {
+                                                  return InputDecorator(
+                                                    decoration: InputDecoration(
+                                                      contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                                                        errorStyle: const TextStyle(
+                                                            color: Colors.redAccent, fontSize: 16.0),
+                                                        border: OutlineInputBorder(
+                                                            borderRadius:
+                                                            BorderRadius.circular(10.0)),
                                                     ),
-                                                    hint: const Text(
-                                                      "mm",
-                                                      style: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 16,
+                                                    child: DropdownButtonHideUnderline(
+                                                      child: DropdownButton<String>(
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.grey,
+                                                        ),
+                                                        hint: const Text(
+                                                          "mm",
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                        items: categoryList
+                                                            .map<DropdownMenuItem<String>>(
+                                                                (String? value) {
+                                                              return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Row(
+                                                                  children: [
+                                                                    const SizedBox(
+                                                                      width: 15,
+                                                                    ),
+                                                                    Text(value!),
+                                                                  ],
+                                                                ),
+                                                              );
+                                                            }).toList(),
+
+                                                        isExpanded: true,
+                                                        isDense: true,
+                                                        onChanged: (String? newSelectedBank) {
+                                                          _onDropDownItemSelected(newSelectedBank);
+                                                        },
+                                                        value: _category,
+
                                                       ),
                                                     ),
-                                                    items: categoryList
-                                                        .map<DropdownMenuItem<String>>(
-                                                            (String? value) {
-                                                          return DropdownMenuItem(
-                                                            value: value,
-                                                            child: Row(
-                                                              children: [
-                                                                const SizedBox(
-                                                                  width: 15,
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(width: width*0.02),
+                                            Expanded(
+                                              child: FormField<String>(
+                                                builder: (FormFieldState<String> state) {
+                                                  return InputDecorator(
+                                                    decoration: InputDecoration(
+                                                        contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                                                        errorStyle: const TextStyle(
+                                                            color: Colors.redAccent, fontSize: 16.0),
+                                                        border: OutlineInputBorder(
+                                                            borderRadius:
+                                                            BorderRadius.circular(10.0))),
+                                                    child: DropdownButtonHideUnderline(
+                                                      child: DropdownButton<String>(
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                          color: Colors.grey,
+                                                        ),
+                                                        hint: const Text(
+                                                          "mm",
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 16,
+                                                          ),
+                                                        ),
+                                                        items: categoryList
+                                                            .map<DropdownMenuItem<String>>(
+                                                                (String? value) {
+                                                              return DropdownMenuItem(
+                                                                value: value,
+                                                                child: Row(
+                                                                  children: [
+                                                                    const SizedBox(
+                                                                      width: 15,
+                                                                    ),
+                                                                    Text(value!),
+                                                                  ],
                                                                 ),
-                                                                Text(value!),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        }).toList(),
+                                                              );
+                                                            }).toList(),
 
-                                                    isExpanded: true,
-                                                    isDense: true,
-                                                    onChanged: (String? newSelectedBank) {
-                                                      _onDropDownItemSelected(newSelectedBank);
-                                                    },
-                                                    value: _category,
+                                                        isExpanded: true,
+                                                        isDense: true,
+                                                        onChanged: (String? newSelectedBank) {
+                                                          _onDropDownItemSelected(newSelectedBank);
+                                                        },
+                                                        value: _category,
 
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                   ),
-                                  // Text('Card Code', style: Utils.appBarStyle,),
+                                  SizedBox(width: width*0.02),
                                   Expanded(
                                     flex: 1,
                                     child: Column(
                                       children: [
-                                        Text('Card Code', style: Utils.appBarStyle,),
-                                        FormField<String>(
-                                          // validator: (value){
-                                          //   if(value!.isEmpty){
-                                          //     return "*gender";
-                                          //   }
-                                          //   setState(() {
-                                          //     _category = value;
-                                          //   });
-                                          //   return null;
-                                          // },
-                                          builder: (FormFieldState<String> state) {
-                                            return InputDecorator(
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                  const EdgeInsets.fromLTRB(12, 10, 20, 20),
-                                                  // errorText: "Wrong Choice",
-                                                  errorStyle: const TextStyle(
-                                                      color: Colors.redAccent, fontSize: 16.0),
-                                                  border: OutlineInputBorder(
-                                                      borderRadius:
-                                                      BorderRadius.circular(10.0))),
-                                              child: DropdownButtonHideUnderline(
-                                                child: DropdownButton<String>(
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.grey,
-                                                  ),
-                                                  hint: const Text(
-                                                    "mm",
-                                                    style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                  items: categoryList
-                                                      .map<DropdownMenuItem<String>>(
-                                                          (String? value) {
-                                                        return DropdownMenuItem(
-                                                          value: value,
-                                                          child: Row(
-                                                            children: [
-                                                              const SizedBox(
-                                                                width: 15,
-                                                              ),
-                                                              Text(value!),
-                                                            ],
-                                                          ),
-                                                        );
-                                                      }).toList(),
-
-                                                  isExpanded: true,
-                                                  isDense: true,
-                                                  onChanged: (String? newSelectedBank) {
-                                                    _onDropDownItemSelected(newSelectedBank);
-                                                  },
-                                                  value: _category,
-
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                        Text('Card Code', style: Utils.masterCard),
+                                        TextFormField(
+                                          decoration: InputDecoration(
+                                              contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                                              hintText: "CVC",
+                                              errorStyle: const TextStyle(
+                                                  color: Colors.redAccent, fontSize: 16.0),
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                  BorderRadius.circular(10.0))),
                                         ),
                                       ],
                                     ),
@@ -464,7 +403,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                               ),
                               Text('Name on Card',
                                 textAlign: TextAlign.start,
-                                style: Utils.appBarStyle,),
+                                style: Utils.masterCard),
                               TextFormField(
                                 controller: cardOnName,
                                 keyboardType: TextInputType.phone,
@@ -477,11 +416,12 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                 decoration: InputDecoration(
                                   hintText: "Please your name on card",
                                   // prefixIcon: const Icon(CupertinoIcons.creditcard),
-                                  contentPadding: EdgeInsets.only(left: width * 0.03, right: 0, top: 0, bottom: 0),
+                                  contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     borderSide: const BorderSide(
                                       color: Color(0xffE9EBF0),
+                                      width: 0.5,
                                     ),
                                   ),
                                   fillColor: const Color(0xffF3F3F3),
@@ -489,7 +429,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                 ),
                               ),
                               SizedBox(
-                                height: height * 0.03,
+                                height: height * 0.02,
                               ),
                               Row(
                                 children: [
