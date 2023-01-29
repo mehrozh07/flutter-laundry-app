@@ -132,15 +132,15 @@ class _AddToCartWidgetState extends State<AddToCartWidget> {
                   SizedBox(
                     height: 24,
                     width: 24,
-                    child: IconButton(
-                      style: IconButton.styleFrom(
+                    child: FilledButton.tonal(
+                      style: FilledButton.styleFrom(
                         padding: EdgeInsets.zero,
                         side: const BorderSide(
                           color: Color(0xffC3C8D2),
                         ),
                       ),
                       onPressed: null,
-                      icon: const Icon(CupertinoIcons.minus),
+                      child: const Icon(CupertinoIcons.minus),
                     ),
                   ),
                   SizedBox(
@@ -154,8 +154,8 @@ class _AddToCartWidgetState extends State<AddToCartWidget> {
                   SizedBox(
                     height: 24,
                     width: 24,
-                    child: IconButton(
-                        style: IconButton.styleFrom(
+                    child: FilledButton.tonal(
+                        style: FilledButton.styleFrom(
                           padding: EdgeInsets.zero,
                           side: const BorderSide(
                             color: Color(0xffC3C8D2),
@@ -175,7 +175,7 @@ class _AddToCartWidgetState extends State<AddToCartWidget> {
                           });
                           exist = true;
                         },
-                        icon: const Icon(CupertinoIcons.add)),
+                        child: const Icon(CupertinoIcons.add)),
                   ),
                 ],
               );

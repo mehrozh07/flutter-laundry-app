@@ -1,4 +1,3 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,9 @@ import 'package:laundary_system/providers/categories_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -37,7 +39,7 @@ class HomePage extends StatelessWidget {
             centerTitle: true,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(
-                  left: 15, right: 15, top: 0, bottom: 0),
+                  left: 8, right: 8, top: 0, bottom: 0),
               expandedTitleScale: 1,
               title: TextFormField(
                 decoration: InputDecoration(
@@ -57,15 +59,15 @@ class HomePage extends StatelessWidget {
             title: ListTile(
               contentPadding: EdgeInsets.zero,
               trailing: Badge(
-                badgeColor: const Color(0xffF39738),
-                position: BadgePosition.topEnd(top: 10, end: 10),
-                badgeContent: null,
+                backgroundColor: const Color(0xffF39738),
+                // alignment: const AlignmentDirectional(100, 50),
+                padding: const EdgeInsets.only(top: 10, left: 10),
+                // position: BadgePosition.topEnd(top: 10, end: 10),
+                // badgeContent: null,
                 child: IconButton(
-                    visualDensity: const VisualDensity(horizontal: -4),
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-
-                    },
+                    visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                    padding: EdgeInsets.only(left: width*0.05, top: 0, right: 0, bottom: 0),
+                    onPressed: () {},
                     icon: Icon(
                       CupertinoIcons.bell,
                       color: Theme.of(context).primaryColor,
@@ -96,7 +98,7 @@ class HomePage extends StatelessWidget {
         },
             body: ListView(
               shrinkWrap: true,
-              padding: EdgeInsets.only(left: width*0.01, right: width*0.01,),
+              padding: EdgeInsets.only(left: width*0.02, right: width*0.02),
               children: [
                 Text(
                   'Services',
@@ -114,7 +116,7 @@ class HomePage extends StatelessWidget {
                       CategoryModel model = catProvider.categoriesList[index];
                       // print(model.services?.length);
                       return Padding(
-                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        padding: const EdgeInsets.only(left: 0, right: 8),
                         child: InkWell(
                           onTap: (){
                             Navigator.push(context,
@@ -221,78 +223,167 @@ class HomePage extends StatelessWidget {
                   'Last Orders',
                   style: Utils.boldTextStyle,
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                    itemCount: 5,
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, snapshot){
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: height*0.2,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF9F9F9),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.time, size: 31, color: Color(0xffF39738),),
-                          Expanded(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ListTile(
-                                  title: Wrap(
-                                    crossAxisAlignment: WrapCrossAlignment.center,
-                                    children: [
-                                      Text("Order #123", style: Utils.blackBoldStyle,),
-                                      Text("(2 bags)", style: Utils.simpleTitleStyle,),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('orders')
+                      .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                      .snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Something went wrong'));
+                    }
+                    if (!snapshot.hasData) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade100,
+                              enabled: true,
+                              child: ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                shrinkWrap: true,
+                                itemBuilder: (_, __) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Container(
+                                        width: 48.0,
+                                        height: 48.0,
+                                        color: Colors.white,
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            Container(
+                                              width: double.infinity,
+                                              height: 8.0,
+                                              color: Colors.white,
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                                            ),
+                                            Container(
+                                              width: double.infinity,
+                                              height: 8.0,
+                                              color: Colors.white,
+                                            ),
+                                            const Padding(
+                                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                                            ),
+                                            Container(
+                                              width: 40.0,
+                                              height: 8.0,
+                                              color: Colors.white,
+                                            ),
+                                          ],
+                                        ),
+                                      )
                                     ],
                                   ),
-                                  trailing: Text("\$80", style: Utils.headlineTextStyle,),
                                 ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Text('10:00', style: Utils.boldTextStyle,),
-                                        Text('Thu, 1 Apr',style: Utils.textSubtitle),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                      width: 80,
-                                      child: CustomPaint(
-                                          size: const Size(1, double.infinity),
-                                          painter: DashedLineVerticalPainter()
+                                itemCount: 6,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return ListView(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                        // Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 6,right: 6, top: 8, bottom: 8),
+                          child: Container(
+                            height: height*0.2,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffF9F9F9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Icon(CupertinoIcons.time, size: 41, color: Color(0xffF39738),),
+                                SizedBox(width: width*0.03,),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Wrap(
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            Text("Order #123", style: Utils.blackHome),
+                                            Text("(2 bags)", style: Utils.simpleTitleStyle,),
+                                          ],
+                                        ),
+                                        trailing: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text("\$80", style: Utils.headlineTextStyle,),
+                                        ),
                                       ),
-                                    ),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('10:00', style: Utils.boldTextStyle,),
-                                        Text('Thu, 1 Apr',style: Utils.textSubtitle),
-                                      ],
-                                    ),
-                                  ],
-                                )
+                                      Row(
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('10:00', style: Utils.boldHome),
+                                              Text('Thu, 1 Apr',style: Utils.textSubtitle),
+                                            ],
+                                          ),
+                                          Container(
+                                            width: width*0.2,
+                                            height: 30,
+                                            color: Colors.white,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.circle_outlined, size: 14, color: Theme.of(context).primaryColor,),
+                                                CustomPaint(
+                                                    painter: DrawDottedhorizontalline()
+                                                ),
+                                                Icon(Icons.circle,size: 14, color: Theme.of(context).primaryColor),
+                                              ],
+                                            ),
+                                          ),
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('10:00', style: Utils.boldHome),
+                                              Text('Thu, 1 Apr',style: Utils.textSubtitle),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ],
             ),
         ),
@@ -300,18 +391,27 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-class DashedLineVerticalPainter extends CustomPainter {
+class DrawDottedhorizontalline extends CustomPainter {
+  Paint? _paint;
+  DrawDottedhorizontalline() {
+    _paint = Paint();
+    _paint!.color = Colors.black; //dots color
+    _paint!.strokeWidth = 2; //dots thickness
+    _paint!.strokeCap = StrokeCap.square; //dots corner edges
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    double dashHeight = 5, dashSpace = 3, startY = 0;
-    final paint = Paint()
-      ..color = const Color(0xffC3C8D2)
-      ..strokeWidth = 2;
-    while (startY < size.height) {
-      canvas.drawLine(Offset(startY , 0), Offset( startY+dashHeight, 0,), paint);
-      startY += dashHeight + dashSpace;
+    for (double i = -24; i < 24; i = i + 3) {
+      // 15 is space between dots
+      if (i % 2 == 0) {
+        canvas.drawLine(Offset(i, 0.0), Offset(i + 0.5, 0.0), _paint!);
+      }
     }
   }
+
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
 }

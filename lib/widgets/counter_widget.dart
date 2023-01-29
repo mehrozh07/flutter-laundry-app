@@ -50,8 +50,8 @@ class _CounterWidgetState extends State<CounterWidget> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
-            style: IconButton.styleFrom(
+          child: FilledButton.tonal(
+            style: FilledButton.styleFrom(
               padding: EdgeInsets.zero,
               side: const BorderSide(
                 color: Color(0xffC3C8D2),
@@ -82,7 +82,7 @@ class _CounterWidgetState extends State<CounterWidget> {
                 });
               });
             },
-            icon: const Icon(CupertinoIcons.minus),
+            child: const Icon(CupertinoIcons.minus),
           ),
         ),
         SizedBox(width: width*0.01,),
@@ -91,8 +91,8 @@ class _CounterWidgetState extends State<CounterWidget> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
-              style: IconButton.styleFrom(
+          child: FilledButton.tonal(
+              style: FilledButton.styleFrom(
                 padding: EdgeInsets.zero,
                 side: const BorderSide(
                   color: Color(0xffC3C8D2),
@@ -107,7 +107,7 @@ class _CounterWidgetState extends State<CounterWidget> {
                  userService.updateCart(widget.docId, quantity, total, context);
                  updating = false;
               },
-              icon: const Icon(CupertinoIcons.add)),
+              child: const Icon(CupertinoIcons.add)),
         ),
       ],
     ) :

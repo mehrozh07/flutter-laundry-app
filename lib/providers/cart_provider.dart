@@ -71,7 +71,7 @@ class CartProvider extends ChangeNotifier{
              primaryColor: Theme.of(context).primaryColor,
              scaffoldBackgroundColor: Colors.grey.shade50,
              textTheme: const TextTheme(
-               bodyText2: TextStyle(color: Colors.black),
+               bodyMedium: TextStyle(color: Colors.black),
              ),
              colorScheme: ColorScheme.fromSwatch().copyWith(
                primary: Theme.of(context).primaryColor,

@@ -72,7 +72,7 @@ class _CartCounterState extends State<CartCounter> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
+          child: FilledButton.tonal(
             style: IconButton.styleFrom(
               padding: EdgeInsets.zero,
               side: const BorderSide(
@@ -104,7 +104,7 @@ class _CartCounterState extends State<CartCounter> {
                 });
               });
             },
-            icon: const Icon(CupertinoIcons.minus),
+            child: const Icon(CupertinoIcons.minus),
           ),
         ),
         SizedBox(width: width*0.01,),
@@ -113,7 +113,7 @@ class _CartCounterState extends State<CartCounter> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
+          child: FilledButton.tonal(
               style: IconButton.styleFrom(
                 padding: EdgeInsets.zero,
                 side: const BorderSide(
@@ -129,7 +129,7 @@ class _CartCounterState extends State<CartCounter> {
                 userService.updateCart(docId, quantity, total, context);
                 updating = false;
               },
-              icon: const Icon(CupertinoIcons.add)),
+              child: const Icon(CupertinoIcons.add)),
         ),
       ],
     ) :
@@ -141,15 +141,15 @@ class _CartCounterState extends State<CartCounter> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
-            style: IconButton.styleFrom(
+          child: FilledButton.tonal(
+            style: FilledButton.styleFrom(
               padding: EdgeInsets.zero,
               side: const BorderSide(
                 color: Color(0xffC3C8D2),
               ),
             ),
             onPressed: null,
-            icon: const Icon(CupertinoIcons.minus),
+            child: const Icon(CupertinoIcons.minus),
           ),
         ),
         SizedBox(width: width*0.01,),
@@ -158,8 +158,8 @@ class _CartCounterState extends State<CartCounter> {
         SizedBox(
           height: 24,
           width: 24,
-          child: IconButton(
-              style: IconButton.styleFrom(
+          child: FilledButton.tonal(
+              style: FilledButton.styleFrom(
                 padding: EdgeInsets.zero,
                 side: const BorderSide(
                   color: Color(0xffC3C8D2),
@@ -179,7 +179,7 @@ class _CartCounterState extends State<CartCounter> {
                   exist = true;
                 });
               },
-              icon: const Icon(CupertinoIcons.add)),
+              child: const Icon(CupertinoIcons.add)),
         ),
       ],
     ) ;

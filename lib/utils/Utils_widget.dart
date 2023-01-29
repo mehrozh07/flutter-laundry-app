@@ -27,6 +27,11 @@ static TextStyle boldTextStyle = const TextStyle(
   color: Color(0xff38106A),
   fontWeight: FontWeight.bold,
 );
+static TextStyle boldHome = const TextStyle(
+  fontSize: 16,
+  color: Color(0xff38106A),
+  fontWeight: FontWeight.bold,
+);
 static TextStyle itemCount = const TextStyle(
   fontSize: 19,
   color: Color(0xff38106A),
@@ -44,6 +49,11 @@ static TextStyle orderListName = const TextStyle(
 );
 static TextStyle blackBoldStyle = const TextStyle(
   fontSize: 26,
+  color: Color(0xff292929),
+  fontWeight: FontWeight.bold,
+);
+static TextStyle blackHome = const TextStyle(
+  fontSize: 19,
   color: Color(0xff292929),
   fontWeight: FontWeight.bold,
 );
@@ -68,7 +78,7 @@ static TextStyle subtitle = const TextStyle(
   fontWeight: FontWeight.normal,
 );
 static TextStyle textSubtitle = const TextStyle(
-  fontSize: 15,
+  fontSize: 14,
   color: Color(0xff595757),
   fontWeight: FontWeight.normal,
 );

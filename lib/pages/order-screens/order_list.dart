@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -122,14 +121,17 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
               Row(
                 children: [
                   Expanded(
-                    child: CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      color: Theme.of(context).primaryColor,
-                        child: const Text('Confirm Order'),
-                        onPressed: (){
-                        orderPlaced(cartProvider: cartProvider, paying: cartProvider.total, context: context);
-                        // Navigator.pushNamed(context, RoutesNames.scheduledPickUp);
-                        }),
+                    child: AbsorbPointer(
+                      absorbing: cartProvider.totalQuantity == 0.0 ? true : false,
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        color: cartProvider.totalQuantity == 0.0 ?
+                        Theme.of(context).primaryColor.withOpacity(0.2) : Theme.of(context).primaryColor,
+                          child: const Text('Confirm Order'),
+                          onPressed: (){
+                          Navigator.pushNamed(context, RoutesNames.scheduledPickUp);
+                          }),
+                    ),
                   ),
                 ],
               ),
@@ -302,25 +304,6 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
       ),
     );
   }
-  orderPlaced({required CartProvider cartProvider, paying, context}){
-    cartService.orderPlacing({
-      "laundries": cartProvider.orderPlaced,
-      "userId": FirebaseAuth.instance.currentUser?.uid,
-      "customerPhone": FirebaseAuth.instance.currentUser?.phoneNumber,
-      "totalPaying": paying,
-      "orderPlacingTime": DateTime.now(),
-      "orderStatus": "Placed",
-      "assignedDeliveryBoy": {
-        "name": "",
-        "phone": "",
-        "location": "",
-        "email": "",
-      }
-    }).then((value){
-      userService.deleteCart().then((value){
-        Navigator.pushReplacementNamed(context, RoutesNames.scheduledPickUp);
-      });
-    });
-  }
+
 
 }

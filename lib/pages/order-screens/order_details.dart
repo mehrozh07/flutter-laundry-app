@@ -255,8 +255,7 @@ class OrderDetails extends StatelessWidget {
                                   const Divider(thickness: 2,),
                                   Container(
                                     color: Colors.white,
-                                    height:
-                                        MediaQuery.of(context).size.height *
+                                    height: MediaQuery.of(context).size.height *
                                             0.4,
                                     padding: const EdgeInsets.only(left: 12),
                                     child: Row(

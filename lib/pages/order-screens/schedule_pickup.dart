@@ -1,10 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
+import 'package:laundary_system/services/user_service.dart';
+import 'package:laundary_system/services/cart_service.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class SchedulePickup extends StatefulWidget {
    SchedulePickup({Key? key}) : super(key: key);
@@ -14,8 +18,14 @@ class SchedulePickup extends StatefulWidget {
 }
 
 class _SchedulePickupState extends State<SchedulePickup> {
+  CartService cartService = CartService();
+  UserService userService = UserService();
   final cardNumber = TextEditingController();
   final cardOnName = TextEditingController();
+  final pickUpTime = TextEditingController();
+  final deliveryTime = TextEditingController();
+  String? pickedDate;
+
   String? _category = 'mm';
 
    final List<String> categoryList=["01", "02", "03","04","05", "06", "07", "08", "09", "10", "11", "12"];
@@ -24,18 +34,43 @@ class _SchedulePickupState extends State<SchedulePickup> {
       _category = newSelectedBank;
     });
   }
-  DateTime? _startDate;
-  DateTime? _endDate;
 
   @override
   void initState() {
    _category = categoryList[0];
     super.initState();
   }
-  DateTimeRange dateTimeRange = DateTimeRange(
-    start: DateTime.now(),
-    end:   DateTime(DateTime.now().year + 1),
-  );
+  DateTime? selectedDate;
+  _selectDate() async{
+    final date = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2024),
+        builder: (context, Widget? child) => Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Theme.of(context).primaryColor,
+            scaffoldBackgroundColor: Colors.grey.shade200,
+            textTheme: const TextTheme(
+              bodyMedium: TextStyle(color: Colors.black54),
+            ),
+            colorScheme: ColorScheme.fromSwatch().copyWith(
+              primary: Theme.of(context).primaryColor,
+              onSurface: Theme.of(context).primaryColor,
+            ),
+          ),
+          child: child!,
+        ),
+    );
+    if(date != null){
+      setState(() {
+        selectedDate = date;
+        pickedDate = DateFormat.yMd('en_US').add_jm().format(selectedDate!);
+        print(pickedDate);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +78,11 @@ class _SchedulePickupState extends State<SchedulePickup> {
     var width = MediaQuery.of(context).size.width;
     var cartProvider = Provider.of<CartProvider>(context);
     cartProvider.getSubTotal();
-    final startDate = dateTimeRange.start;
-    final endDate = dateTimeRange.end;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        automaticallyImplyLeading: false,
         title: Text('Scheduled A PickUp', style: Utils.appBarStyle,),
       ),
       bottomSheet: Container(
@@ -68,7 +101,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     color: Theme.of(context).primaryColor,
                     child: const Text('Confirm Order'),
                     onPressed: (){
-                      Navigator.pushNamed(context, RoutesNames.orderDetails);
+                      orderPlaced(cartProvider: cartProvider, paying: cartProvider.total, context: context);
                     }),
               ),
             ],
@@ -120,36 +153,47 @@ class _SchedulePickupState extends State<SchedulePickup> {
             children: [
               Expanded(
                 child: TextFormField(
+                  controller: pickUpTime,
                   readOnly: true,
                   autofocus: true,
+                  maxLines: 2,
                   decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
+                    border:  OutlineInputBorder(
+                      borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                    ),
                     labelText: "Pickup Time",
                     // prefixText: "${startDate.day},${startDate.month},${startDate.month} "
                     //     "\n 10 : 20 : 00",
                     prefixIcon: InkWell(
                         onTap: () async{
-                          showDateRangePicker(
-                            context: context,
+                          final  _selectedRange = await showDatePicker(
+                              context: context,
                               initialEntryMode: DatePickerEntryMode.calendar,
+                              initialDate: DateTime.now(),
                               useRootNavigator: true,
                               routeSettings: const RouteSettings(),
                               firstDate: DateTime.now(),
                               lastDate: DateTime(3050),
                               builder: (context, Widget? child) => Theme(
-                                data: ThemeData.dark().copyWith(
+                                data: ThemeData.light().copyWith(
                                   primaryColor: Theme.of(context).primaryColor,
                                   scaffoldBackgroundColor: Colors.grey.shade50,
                                   textTheme: const TextTheme(
-                                    bodyText2: TextStyle(color: Colors.black),
+                                    bodyMedium: TextStyle(color: Colors.black),
                                   ),
-                                    colorScheme: ColorScheme.fromSwatch().copyWith(
-                                      primary: Theme.of(context).primaryColor,
-                                      onSurface: Theme.of(context).primaryColor,
-                                    ),
+                                  colorScheme: ColorScheme.fromSwatch().copyWith(
+                                    primary: Theme.of(context).primaryColor,
+                                    onSurface: Theme.of(context).primaryColor,
+                                  ),
                                 ),
                                 child: child!,
-                          ));
+                              )
+                          );
+                          if(_selectedRange != null){
+                            pickUpTime.text = DateFormat.yMMMd('en_US').add_jm().format(_selectedRange);
+                            print(_selectedRange);
+                          }
+
                         },
                         child: const Icon(CupertinoIcons.calendar_badge_plus)),
                   ),
@@ -158,19 +202,49 @@ class _SchedulePickupState extends State<SchedulePickup> {
               SizedBox(width: width*0.02),
               Expanded(
                 child: TextFormField(
+                  controller: pickUpTime,
                   readOnly: true,
+                  maxLines: 2,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: "Delivery Time",
-                    prefixText: "${endDate.day},${endDate.month},${endDate.month} \n 10 : 20 : 00",
                     prefixIcon:InkWell(
-                        onTap: ()=>cartProvider.pickDateRange(context, dateTimeRange),
+                        onTap: () async{
+                          final  _selectedRange = await showDatePicker(
+                            context: context,
+                              initialEntryMode: DatePickerEntryMode.calendar,
+                              initialDate: DateTime.now(),
+                              useRootNavigator: true,
+                              routeSettings: const RouteSettings(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(3050),
+                              builder: (context, Widget? child) => Theme(
+                                data: ThemeData.light().copyWith(
+                                  primaryColor: Theme.of(context).primaryColor,
+                                  scaffoldBackgroundColor: Colors.grey.shade50,
+                                  textTheme: const TextTheme(
+                                    bodyMedium: TextStyle(color: Colors.black),
+                                  ),
+                                    colorScheme: ColorScheme.fromSwatch().copyWith(
+                                      primary: Theme.of(context).primaryColor,
+                                      onSurface: Theme.of(context).primaryColor,
+                                    ),
+                                ),
+                                child: child!,
+                          )
+                          );
+                          if(_selectedRange != null){
+                            deliveryTime.text = DateFormat.yMMMd('en_US').add_jm().format(_selectedRange);
+                            print(_selectedRange);
+                          }
+                        },
                         child: const Icon(CupertinoIcons.calendar_today)),
                   ),
                 ),
               ),
             ],
           ),
+
           SizedBox(height: height*0.02,),
           Text('Payment method',style: Utils.boldTextStyle,),
           SizedBox(height: height*0.01,),
@@ -517,6 +591,29 @@ class _SchedulePickupState extends State<SchedulePickup> {
         ],
       ),
     );
+  }
+  orderPlaced({required CartProvider cartProvider, paying, context}){
+    cartService.orderPlacing({
+      "laundries": cartProvider.orderPlaced,
+      "userId": FirebaseAuth.instance.currentUser?.uid,
+      "customerPhone": FirebaseAuth.instance.currentUser?.phoneNumber,
+      "totalPaying": paying,
+      "pickupTime": pickUpTime.text,
+      "deliveryTime": deliveryTime.text,
+      "orderPlacingTime": DateTime.now(),
+      "orderStatus": "Placed",
+      "assignedDeliveryBoy": {
+        "name": "",
+        "phone": "",
+        "location": "",
+        "email": "",
+      }
+    }).then((value){
+      userService.deleteCart().then((value){
+        // userService.checkCart(docId: widget.docId, context: context);
+        Navigator.pushReplacementNamed(context, RoutesNames.orderDetails);
+      });
+    });
   }
 }
 class DashedLineVerticalPainter extends CustomPainter {

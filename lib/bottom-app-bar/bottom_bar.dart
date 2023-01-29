@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:laundary_system/pages/account-screen/account_page.dart';
 import 'package:laundary_system/pages/cart-screen/cart_page.dart';
 import 'package:laundary_system/pages/home-screen/home_page.dart';
-import 'package:laundary_system/pages/order-screen/order_page.dart';
+import 'package:laundary_system/pages/order-screens/order_page.dart';
 
 class MainScreen extends StatefulWidget {
   static const id = '/main-screen';
@@ -61,11 +61,6 @@ class _MainScreenState extends State<MainScreen> {
                     selectedIcon: Icon(CupertinoIcons.house_fill,
                       color: Theme.of(context).primaryColor,),
                   ),
-                  // NavigationDestination(
-                  //   icon: Icon(CupertinoIcons.search),
-                  //   selectedIcon: Icon(CupertinoIcons.search_circle_fill,color: const Color(0xFF223263),),
-                  //   label: 'Explore',
-                  // ),
                   NavigationDestination(
                     icon: const Icon(Icons.shopping_cart),
                     selectedIcon: Icon(Icons.shopping_cart,
