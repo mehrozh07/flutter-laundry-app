@@ -225,6 +225,7 @@ class HomePage extends StatelessWidget {
                 ),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance.collection('orders')
+                      .where('orderStatus', isNotEqualTo: "Delivered").limit(5)
                       .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                       .snapshots(),
                   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -243,7 +244,7 @@ class HomePage extends StatelessWidget {
                               highlightColor: Colors.grey.shade100,
                               enabled: true,
                               child: ListView.builder(
-                                physics: BouncingScrollPhysics(),
+                                physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 itemBuilder: (_, __) => Padding(
                                   padding: const EdgeInsets.only(bottom: 8.0),

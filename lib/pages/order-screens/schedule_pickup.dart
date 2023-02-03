@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
+import 'package:laundary_system/pages/map_address/pickup_address.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
@@ -202,7 +205,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
               SizedBox(width: width*0.02),
               Expanded(
                 child: TextFormField(
-                  controller: pickUpTime,
+                  controller: deliveryTime,
                   readOnly: true,
                   maxLines: 2,
                   decoration: InputDecoration(
@@ -210,7 +213,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     labelText: "Delivery Time",
                     prefixIcon:InkWell(
                         onTap: () async{
-                          final  _selectedRange = await showDatePicker(
+                          final  selectedRange = await showDatePicker(
                             context: context,
                               initialEntryMode: DatePickerEntryMode.calendar,
                               initialDate: DateTime.now(),
@@ -233,9 +236,9 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                 child: child!,
                           )
                           );
-                          if(_selectedRange != null){
-                            deliveryTime.text = DateFormat.yMMMd('en_US').add_jm().format(_selectedRange);
-                            print(_selectedRange);
+                          if(selectedRange != null){
+                            deliveryTime.text = DateFormat.yMMMd('en_US').add_jm().format(selectedRange);
+                            print(selectedRange);
                           }
                         },
                         child: const Icon(CupertinoIcons.calendar_today)),
@@ -566,7 +569,13 @@ class _SchedulePickupState extends State<SchedulePickup> {
                       children: [
                         Expanded(
                           child: ListTile(
-                            onTap: (){},
+                            onTap: (){
+                              if(Platform.isAndroid){
+                                Navigator.push(context, CupertinoPageRoute(builder: (_)=> const PickUpAddress()));
+                              }else{
+                                Utils.flushBarMessage(context, 'not enabled for ios', Colors.red);
+                              }
+                            },
                             title: Text('Pickup Address', style: Utils.itemCount,),
                             subtitle: Text('CT7B The Sparks, KDT Duong Noi, Str. Ha Dong,\n Ha Noi',
                               style: Utils.simpleTitleStyle,),

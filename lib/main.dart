@@ -13,7 +13,6 @@ import 'package:laundary_system/routes.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 
-
 Map<int, Color> color = {
   50: const Color.fromRGBO(206, 21, 103, .1),
   100: const Color.fromRGBO(206, 21, 103, .2),
