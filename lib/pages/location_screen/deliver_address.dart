@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:laundary_system/providers/location_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
-import 'package:location/location.dart';
+import 'package:provider/provider.dart';
 
 enum Address{ Home, Office}
 class DeliverAddress extends StatefulWidget {
@@ -18,99 +19,84 @@ class DeliverAddress extends StatefulWidget {
 
 class _DeliverAddressState extends State<DeliverAddress> {
   var addressType = Address.Home;
-  LatLng? _latLong;
-  bool _locating = false;
+
+
   final Completer<GoogleMapController> _controller =
   Completer<GoogleMapController>();
-  LocationData? _locationData;
 
-  Future<Position> _determinePosition() async {
 
-    bool serviceEnabled;
-    LocationPermission permission;
-    await Geolocator.requestPermission();
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-    return await Geolocator.getCurrentPosition();
-  }
-  Placemark? _placeMark;
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
 
-  getUserAddress()async{
-    List<Placemark> placemarks = await placemarkFromCoordinates(_latLong!.latitude, _latLong!.longitude);
-    setState(() {
-      _placeMark = placemarks.first;
-    });
-  }
+
 
   @override
   void initState() {
-   _determinePosition();
+    var locationProvider = Provider.of<LocationProvider>(context, listen: false);
+   locationProvider.getUserAddress();
+   locationProvider.updateUser();
     super.initState();
   }
 
   var addressController = TextEditingController();
+  LatLng currentLocation =  LatLng(37.42796133580664, -122.085749655962);
   @override
   Widget build(BuildContext context) {
+    var locationProvider = Provider.of<LocationProvider>(context);
+    setState(() {
+      currentLocation = LatLng(locationProvider.position!.latitude, locationProvider.position!.longitude);
+    });
     return SafeArea(
       child: Scaffold(
         appBar: PreferredSize(
-            preferredSize: const Size(double.infinity, 200),
+            preferredSize: Size(double.infinity, MediaQuery.of(context).size.height*0.22),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
-                  _placeMark!=null ? Column(
+                  locationProvider.placeMark !=null ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(_locating ?'Locating...': _placeMark!.locality==null ?
-                          _placeMark!.subLocality! : _placeMark!.locality!,
+                          Text(locationProvider.loader ?'Locating...': locationProvider.placeMark!.locality==null ?
+                          locationProvider.placeMark!.subLocality! : locationProvider.placeMark!.locality!,
                             style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
                           ),
-                          TextButton(onPressed: (){
+                        locationProvider.loader ? const Text("Locating...") :
+                        TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                              minimumSize: const Size(50, 50)
+                            ),
+                              onPressed: (){
                             Navigator.of(context).pop();
                           },
                               child: Text("Done",
-                          style: Utils.coloredTextStyle,))
+                          style: Utils.headlineTextStyle))
                         ],
                       ),
-                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Text(_placeMark!.subLocality!, ),
-                          Text(_placeMark!.subAdministrativeArea!=null ? '${_placeMark!.subAdministrativeArea!}, ' : ''),
+                          Text(locationProvider.placeMark!.subLocality!, ),
+                          Text(locationProvider.placeMark!.subAdministrativeArea!=null
+                              ? '${locationProvider.placeMark!.subAdministrativeArea!}, ' : ''),
                         ],
                       ),
-                      Text('${_placeMark!.administrativeArea!}, ${_placeMark!.country!}, ${_placeMark!.postalCode!}')
+                      Text('${locationProvider.placeMark!.administrativeArea!},'
+                          ' ${locationProvider.placeMark!.country!}, ${locationProvider.placeMark!.postalCode!}')
                     ],
                   ) : Container(),
-                  const SizedBox(height: 10,),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Container(
-                        width: 140,
+                        width: MediaQuery.of(context).size.width*0.45,
                         height: 40,
                         padding: EdgeInsets.zero,
                         decoration: BoxDecoration(
@@ -121,10 +107,10 @@ class _DeliverAddressState extends State<DeliverAddress> {
                             )),
                         child: RadioListTile<Address>(
                           visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4),
-                          contentPadding: EdgeInsets.zero,
+                          contentPadding: const EdgeInsets.only(right: 5),
                           activeColor: Theme.of(context).primaryColor,
                           secondary: const Icon(Icons.home_filled),
-                          selectedTileColor: Theme.of(context).primaryColor,
+                          selected: true,
                           title: const Text("Home"),
                           value: Address.Home,
                           groupValue: addressType,
@@ -136,7 +122,7 @@ class _DeliverAddressState extends State<DeliverAddress> {
                         ),
                       ),
                       Container(
-                        width: 140,
+                        width: MediaQuery.of(context).size.width*0.45,
                         height: 40,
                         padding: EdgeInsets.zero,
                         decoration: BoxDecoration(
@@ -147,10 +133,10 @@ class _DeliverAddressState extends State<DeliverAddress> {
                             )),
                         child: RadioListTile<Address>(
                           visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4),
-                          contentPadding: EdgeInsets.zero,
+                          contentPadding: const EdgeInsets.only(right: 5),
                           activeColor: Theme.of(context).primaryColor,
                           secondary: const Icon(Icons.work_outline_rounded),
-                          selectedTileColor: Theme.of(context).primaryColor,
+                          selected: true,
                           title: const Text("Office"),
                           value: Address.Office,
                           groupValue: addressType,
@@ -173,21 +159,20 @@ class _DeliverAddressState extends State<DeliverAddress> {
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               mapType: MapType.terrain,
-              initialCameraPosition: _kGooglePlex,
+              initialCameraPosition: CameraPosition(
+                target: currentLocation,
+                zoom: 14,
+              ),
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
               },
               onCameraMove: (CameraPosition position){
-                setState(() {
-                  _locating = true;
-                  _latLong = position.target;
-                });
+                locationProvider.indicator = true;
+                locationProvider.latLong = position.target;
               },
               onCameraIdle: (){
-                setState(() {
-                  _locating = false;
-                });
-                getUserAddress();
+                locationProvider.indicator = false;
+                locationProvider.getUserAddress();
               },
             ),
             Align(
@@ -196,7 +181,6 @@ class _DeliverAddressState extends State<DeliverAddress> {
             ),
              Center(
               child: SpinKitRipple(
-                duration: const Duration(microseconds: 1),
                 color: Theme.of(context).primaryColor.withOpacity(0.2),
                 size: 200,
               ),

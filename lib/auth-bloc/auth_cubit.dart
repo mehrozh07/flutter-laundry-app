@@ -88,10 +88,17 @@ class AuthCubit extends Cubit<AuthState> {
 
   createUser({phoneNumber}){
     FirebaseFirestore.instance.collection('users').doc(auth.currentUser!.uid).set({
-      "name": "name",
+      "name": null,
       "userId": auth.currentUser?.uid,
       "phoneNumber": phoneNumber,
-      "status": "status",
+      "status": null,
+      "deliveryAddress": null,
+      "deliveryLatitude": null,
+      "deliveryLongitude": null,
+      "pickUpLatitude": null,
+      "pickUpLongitude": null,
+      "pickupAddress": null,
+      "profile": null,
     });
   }
   updateUser({phoneNumber}){

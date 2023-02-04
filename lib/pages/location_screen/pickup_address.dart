@@ -1,183 +1,182 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:laundary_system/providers/location_provider.dart';
+import 'package:laundary_system/utils/Utils_widget.dart';
+import 'package:provider/provider.dart';
 
-
-
+enum Address{ Home, Office}
 class PickUpAddress extends StatefulWidget {
-  const PickUpAddress({Key? key,}) : super(key: key);
+  const PickUpAddress({Key? key}) : super(key: key);
 
   @override
   State<PickUpAddress> createState() => _PickUpAddressState();
 }
 
 class _PickUpAddressState extends State<PickUpAddress> {
+  var addressType = Address.Home;
 
-  final Completer<GoogleMapController> _controller = Completer();
-  LocationData? _currentPosition;
-  LatLng? _latLong;
-  bool _locating = false;
-  geocoding.Placemark? _placeMark;
 
-  static const CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
-  );
+  final Completer<GoogleMapController> _controller =
+  Completer<GoogleMapController>();
 
   @override
   void initState() {
-    _getUserLocation();
+    var locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    locationProvider.determinePosition();
     super.initState();
   }
 
-  Future<LocationData>_getLocationPermission()async{
-    Location location = Location();
-
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
-        return Future.error('Service not enabled');
-      }
-    }
-
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
-        return Future.error('Permission Denied');
-      }
-    }
-
-    _locationData = await location.getLocation();
-    return _locationData;
-  }
-
-  _getUserLocation()async{
-    _currentPosition = await _getLocationPermission();
-
-    _goToCurrentPosition(LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!));
-  }
-
-  getUserAddress()async{
-    List<geocoding.Placemark> placeMarks = await geocoding.placemarkFromCoordinates(_latLong!.latitude, _latLong!.longitude);
-    setState(() {
-      _placeMark = placeMarks.first;
-    });
-  }
-
+  var addressController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    var locationProvider = Provider.of<LocationProvider>(context);
     return SafeArea(
       child: Scaffold(
-        bottomSheet: SizedBox(
-          height: MediaQuery.of(context).size.height*0.24,
+        appBar: PreferredSize(
+          preferredSize: Size(double.infinity, MediaQuery.of(context).size.height*0.22),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Column(
+                locationProvider.placeMark !=null ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _placeMark!=null ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_locating ?'Locating...': _placeMark!.locality==null ?
-                        _placeMark!.subLocality! : _placeMark!.locality!,
+                        Text(locationProvider.loader ?'Locating...': locationProvider.placeMark!.locality==null ?
+                        locationProvider.placeMark!.subLocality! : locationProvider.placeMark!.locality!,
                           style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 8,),
-                        Row(
-                          children: [
-                            Text(_placeMark!.subLocality!, ),
-                            Text(_placeMark!.subAdministrativeArea!=null ? '${_placeMark!.subAdministrativeArea!}, ' : ''),
-                          ],
-                        ),
-                        Text('${_placeMark!.administrativeArea!}, ${_placeMark!.country!}, ${_placeMark!.postalCode!}')
+                        locationProvider.loader ? const Text("Locating...") :
+                        TextButton(
+                            style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                minimumSize: const Size(50, 50)
+                            ),
+                            onPressed: (){
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("Done",
+                                style: Utils.headlineTextStyle))
                       ],
-                    ) : Container(),
-                    const SizedBox(height: 10,),
+                    ),
                     Row(
                       children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: (){
-                              print(_placeMark!.toJson());
-                            },
-                            child: const Text('Confirm Location'),
-                          ),
-                        ),
+                        Text(locationProvider.placeMark!.subLocality!, ),
+                        Text(locationProvider.placeMark!.subAdministrativeArea!=null
+                            ? '${locationProvider.placeMark!.subAdministrativeArea!}, ' : ''),
                       ],
-                    )
+                    ),
+                    Text('${locationProvider.placeMark!.administrativeArea!},'
+                        ' ${locationProvider.placeMark!.country!}, ${locationProvider.placeMark!.postalCode!}'),
                   ],
-                )
+                ) : Container(),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width*0.45,
+                      height: 40,
+                      padding: EdgeInsets.zero,
+                      decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              color: Theme.of(context).primaryColor
+                          )),
+                      child: RadioListTile<Address>(
+                        visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4),
+                        contentPadding: const EdgeInsets.only(right: 5),
+                        activeColor: Theme.of(context).primaryColor,
+                        secondary: const Icon(Icons.home_filled),
+                        selected: true,
+                        title: const Text("Home"),
+                        value: Address.Home,
+                        groupValue: addressType,
+                        onChanged: (Address? value) {
+                          setState(() {
+                            addressType = value!;
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width*0.45,
+                      height: 40,
+                      padding: EdgeInsets.zero,
+                      decoration: BoxDecoration(
+                          color: Colors.white60,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                              color: Theme.of(context).primaryColor
+                          )),
+                      child: RadioListTile<Address>(
+                        visualDensity: const VisualDensity(vertical: -4.0, horizontal: -4),
+                        contentPadding: const EdgeInsets.only(right: 5),
+                        activeColor: Theme.of(context).primaryColor,
+                        secondary: const Icon(Icons.work_outline_rounded),
+                        selected: true,
+                        title: const Text("Office"),
+                        value: Address.Office,
+                        groupValue: addressType,
+                        onChanged: (Address? value) {
+                          setState(() {
+                            addressType = value!;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: Stack(
           children: [
-            Stack(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height *.75,
-                  decoration: const BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(color: Colors.grey)
-                      )
-                  ),
-                  child: Stack(
-                    children: [
-                      GoogleMap(
-                        myLocationEnabled: true,
-                        myLocationButtonEnabled: true,
-                        mapType: MapType.terrain,
-                        initialCameraPosition: _kGooglePlex,
-                        onMapCreated: (GoogleMapController controller) {
-                          _controller.complete(controller);
-                        },
-                        onCameraMove: (CameraPosition position){
-                          setState(() {
-                            _locating = true;
-                            _latLong = position.target;
-                          });
-                        },
-                        onCameraIdle: (){
-                          setState(() {
-                            _locating = false;
-                          });
-                          getUserAddress();
-                        },
-                      ),
-                       Align(
-                          alignment: Alignment.center,
-                          child: Icon(CupertinoIcons.location_circle_fill,size: 40, color: Theme.of(context).primaryColor,)),
-                    ],
-                  ),
+            GoogleMap(
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              mapType: MapType.terrain,
+              compassEnabled: true,
+              mapToolbarEnabled: true,
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(
+                  37.42796133580664, -122.085749655962,
                 ),
-              ],
+                zoom: 14,
+              ),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              onCameraMove: (CameraPosition position){
+                locationProvider.indicator = true;
+                locationProvider.latLong = position.target;
+              },
+              onCameraIdle: (){
+                locationProvider.indicator = false;
+                locationProvider.getUserAddress();
+              },
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: Icon(CupertinoIcons.location_circle_fill,size: 40, color: Theme.of(context).primaryColor,),
+            ),
+            Center(
+              child: SpinKitRipple(
+                color: Theme.of(context).primaryColor.withOpacity(0.2),
+                size: 200,
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _goToCurrentPosition(LatLng latlng) async {
-    final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(
-        CameraPosition(
-            bearing: 192.8334901395799,
-            target: LatLng(latlng.latitude, latlng.longitude),
-            //tilt: 59.440717697143555,
-            zoom: 14.4746)
-    ));
   }
 }

@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../location_screen/deliver_address.dart';
 import '../location_screen/pickup_address.dart';
-
+enum Payment{payPal, masterCard,cashOnDelivery}
 class SchedulePickup extends StatefulWidget {
    SchedulePickup({Key? key}) : super(key: key);
 
@@ -21,6 +21,7 @@ class SchedulePickup extends StatefulWidget {
 }
 
 class _SchedulePickupState extends State<SchedulePickup> {
+  var paymentType = Payment.cashOnDelivery;
   CartService cartService = CartService();
   UserService userService = UserService();
   final cardNumber = TextEditingController();
@@ -29,51 +30,21 @@ class _SchedulePickupState extends State<SchedulePickup> {
   final deliveryTime = TextEditingController();
   String? pickedDate;
 
-  String? _category = 'mm';
-
-   final List<String> categoryList=["01", "02", "03","04","05", "06", "07", "08", "09", "10", "11", "12"];
-  void _onDropDownItemSelected(String? newSelectedBank) {
-    setState(() {
-      _category = newSelectedBank;
-    });
-  }
-
-  @override
-  void initState() {
-   _category = categoryList[0];
-    super.initState();
-  }
+  // String? _category = 'mm';
+  //
+  //  final List<String> categoryList=["01", "02", "03","04","05", "06", "07", "08", "09", "10", "11", "12"];
+  // void _onDropDownItemSelected(String? newSelectedBank) {
+  //   setState(() {
+  //     _category = newSelectedBank;
+  //   });
+  // }
+  //
+  // @override
+  // void initState() {
+  //  _category = categoryList[0];
+  //   super.initState();
+  // }
   DateTime? selectedDate;
-  _selectDate() async{
-    final date = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime.now(),
-        lastDate: DateTime(2024),
-        builder: (context, Widget? child) => Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Theme.of(context).primaryColor,
-            scaffoldBackgroundColor: Colors.grey.shade200,
-            textTheme: const TextTheme(
-              bodyMedium: TextStyle(color: Colors.black54),
-            ),
-            colorScheme: ColorScheme.fromSwatch().copyWith(
-              primary: Theme.of(context).primaryColor,
-              onSurface: Theme.of(context).primaryColor,
-            ),
-          ),
-          child: child!,
-        ),
-    );
-    if(date != null){
-      setState(() {
-        selectedDate = date;
-        pickedDate = DateFormat.yMd('en_US').add_jm().format(selectedDate!);
-        print(pickedDate);
-      });
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -258,283 +229,308 @@ class _SchedulePickupState extends State<SchedulePickup> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ListTile(
-                    dense: true,
-                    visualDensity: const VisualDensity(horizontal: -4),
-                    leading: const Icon(CupertinoIcons.chevron_down_circle),
-                    title: Text('Pay Via Paypal', style: Utils.itemCount,),
-                    subtitle: Text('+ Add account', style: Utils.coloredTextStyle,),
-                    trailing: Image.asset(Assets.assetsPaypal),
+                  RadioListTile<Payment>(
+                    visualDensity: const VisualDensity(vertical: -4.0),
+                    activeColor: Theme.of(context).disabledColor.withOpacity(0.5),
+                    secondary: const Icon(Icons.paypal),
+                    selectedTileColor: Theme.of(context).disabledColor,
+                    selected: false,
+                    toggleable: false,
+                    title: const Text("Pay Via Paypal"),
+                    subtitle: Text("+ Add account",style: Utils.coloredTextStyle),
+                    value: Payment.payPal,
+                    groupValue: paymentType,
+                    onChanged: (Payment? value) {
+                      // setState(() {
+                      //   paymentType = value!;
+                      // });
+                    },
                   ),
-                  ListTile(
-                    dense: true,
+                  InkWell(
                     onTap: (){
-                      showModalBottomSheet(
-                          context: context,
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(20),
-                                topLeft: Radius.circular(20),
-                              )),
-                          builder: (context){
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                 title: Text(
-                                  'Add Visa/Master Card',
-                                  style: Utils.orderListName,
-                                ),
-                                trailing: TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Icon(Icons.close)),
-                              ),
-                              const Divider(thickness: 2,),
-                              Text('Card Number', style: Utils.masterCard,),
-                              TextFormField(
-                                controller: cardNumber,
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'enter card number';
-                                  }
-                                  return null;
-                                },
-                                decoration: InputDecoration(
-                                  hintText: "Card number",
-                                  prefixIcon: const Icon(CupertinoIcons.creditcard),
-                                  contentPadding: EdgeInsets.only(left: width * 0.03, right: 0, top: 0, bottom: 0),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xffE9EBF0),
-                                    ),
-                                  ),
-                                  fillColor: const Color(0xffF3F3F3),
-                                  filled: true,
-                                ),
-                              ),
-                              SizedBox(
-                                height: height * 0.03,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Wrap(
-                                          crossAxisAlignment: WrapCrossAlignment.center,
-                                          children: [
-                                            Text('Card Number ', style: Utils.masterCard,),
-                                            Text('(Month - year)', style: Utils.textSubtitle,),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            //
-                                            Expanded(
-                                              child: FormField<String>(
-                                                builder: (FormFieldState<String> state) {
-                                                  return InputDecorator(
-                                                    decoration: InputDecoration(
-                                                      contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                                                        errorStyle: const TextStyle(
-                                                            color: Colors.redAccent, fontSize: 16.0),
-                                                        border: OutlineInputBorder(
-                                                            borderRadius:
-                                                            BorderRadius.circular(10.0)),
-                                                    ),
-                                                    child: DropdownButtonHideUnderline(
-                                                      child: DropdownButton<String>(
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.grey,
-                                                        ),
-                                                        hint: const Text(
-                                                          "mm",
-                                                          style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 16,
-                                                          ),
-                                                        ),
-                                                        items: categoryList
-                                                            .map<DropdownMenuItem<String>>(
-                                                                (String? value) {
-                                                              return DropdownMenuItem(
-                                                                value: value,
-                                                                child: Row(
-                                                                  children: [
-                                                                    const SizedBox(
-                                                                      width: 15,
-                                                                    ),
-                                                                    Text(value!),
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            }).toList(),
-
-                                                        isExpanded: true,
-                                                        isDense: true,
-                                                        onChanged: (String? newSelectedBank) {
-                                                          _onDropDownItemSelected(newSelectedBank);
-                                                        },
-                                                        value: _category,
-
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(width: width*0.02),
-                                            Expanded(
-                                              child: FormField<String>(
-                                                builder: (FormFieldState<String> state) {
-                                                  return InputDecorator(
-                                                    decoration: InputDecoration(
-                                                        contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                                                        errorStyle: const TextStyle(
-                                                            color: Colors.redAccent, fontSize: 16.0),
-                                                        border: OutlineInputBorder(
-                                                            borderRadius:
-                                                            BorderRadius.circular(10.0))),
-                                                    child: DropdownButtonHideUnderline(
-                                                      child: DropdownButton<String>(
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                          color: Colors.grey,
-                                                        ),
-                                                        hint: const Text(
-                                                          "mm",
-                                                          style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize: 16,
-                                                          ),
-                                                        ),
-                                                        items: categoryList
-                                                            .map<DropdownMenuItem<String>>(
-                                                                (String? value) {
-                                                              return DropdownMenuItem(
-                                                                value: value,
-                                                                child: Row(
-                                                                  children: [
-                                                                    const SizedBox(
-                                                                      width: 15,
-                                                                    ),
-                                                                    Text(value!),
-                                                                  ],
-                                                                ),
-                                                              );
-                                                            }).toList(),
-
-                                                        isExpanded: true,
-                                                        isDense: true,
-                                                        onChanged: (String? newSelectedBank) {
-                                                          _onDropDownItemSelected(newSelectedBank);
-                                                        },
-                                                        value: _category,
-
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(width: width*0.02),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Column(
-                                      children: [
-                                        Text('Card Code', style: Utils.masterCard),
-                                        TextFormField(
-                                          decoration: InputDecoration(
-                                              contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                                              hintText: "CVC",
-                                              errorStyle: const TextStyle(
-                                                  color: Colors.redAccent, fontSize: 16.0),
-                                              border: OutlineInputBorder(
-                                                  borderRadius:
-                                                  BorderRadius.circular(10.0))),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: height * 0.03,
-                              ),
-                              Text('Name on Card',
-                                textAlign: TextAlign.start,
-                                style: Utils.masterCard),
-                              TextFormField(
-                                controller: cardOnName,
-                                keyboardType: TextInputType.phone,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Please your name on card';
-                                  }
-                                  return null;
-                                },
-                                decoration: InputDecoration(
-                                  hintText: "Please your name on card",
-                                  // prefixIcon: const Icon(CupertinoIcons.creditcard),
-                                  contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xffE9EBF0),
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  fillColor: const Color(0xffF3F3F3),
-                                  filled: true,
-                                ),
-                              ),
-                              SizedBox(
-                                height: height * 0.02,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CupertinoButton(
-                                      padding: EdgeInsets.zero,
-                                      color: Theme.of(context).primaryColor,
-                                      child: const Text("Save & Continue"),
-                                      onPressed: (){},
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        );
+                      // showModalBottomSheet(
+                      //     context: context,
+                      //     shape: const RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.only(
+                      //           topRight: Radius.circular(20),
+                      //           topLeft: Radius.circular(20),
+                      //         )),
+                      //     builder: (context){
+                      //       return Padding(
+                      //         padding: const EdgeInsets.only(left: 8, right: 8),
+                      //         child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             ListTile(
+                      //               contentPadding: EdgeInsets.zero,
+                      //               title: Text(
+                      //                 'Add Visa/Master Card',
+                      //                 style: Utils.orderListName,
+                      //               ),
+                      //               trailing: TextButton(
+                      //                   onPressed: () {
+                      //                     Navigator.pop(context);
+                      //                   },
+                      //                   child: const Icon(Icons.close)),
+                      //             ),
+                      //             const Divider(thickness: 2,),
+                      //             Text('Card Number', style: Utils.masterCard,),
+                      //             TextFormField(
+                      //               controller: cardNumber,
+                      //               keyboardType: TextInputType.number,
+                      //               validator: (value) {
+                      //                 if (value!.isEmpty) {
+                      //                   return 'enter card number';
+                      //                 }
+                      //                 return null;
+                      //               },
+                      //               decoration: InputDecoration(
+                      //                 hintText: "Card number",
+                      //                 prefixIcon: const Icon(CupertinoIcons.creditcard),
+                      //                 contentPadding: EdgeInsets.only(left: width * 0.03, right: 0, top: 0, bottom: 0),
+                      //                 border: OutlineInputBorder(
+                      //                   borderRadius: BorderRadius.circular(8),
+                      //                   borderSide: const BorderSide(
+                      //                     color: Color(0xffE9EBF0),
+                      //                   ),
+                      //                 ),
+                      //                 fillColor: const Color(0xffF3F3F3),
+                      //                 filled: true,
+                      //               ),
+                      //             ),
+                      //             SizedBox(
+                      //               height: height * 0.03,
+                      //             ),
+                      //             Row(
+                      //               children: [
+                      //                 Expanded(
+                      //                   flex: 2,
+                      //                   child: Column(
+                      //                     crossAxisAlignment: CrossAxisAlignment.start,
+                      //                     children: [
+                      //                       Wrap(
+                      //                         crossAxisAlignment: WrapCrossAlignment.center,
+                      //                         children: [
+                      //                           Text('Card Number ', style: Utils.masterCard,),
+                      //                           Text('(Month - year)', style: Utils.textSubtitle,),
+                      //                         ],
+                      //                       ),
+                      //                       Row(
+                      //                         children: [
+                      //                           //
+                      //                           Expanded(
+                      //                             child: FormField<String>(
+                      //                               builder: (FormFieldState<String> state) {
+                      //                                 return InputDecorator(
+                      //                                   decoration: InputDecoration(
+                      //                                     contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                      //                                     errorStyle: const TextStyle(
+                      //                                         color: Colors.redAccent, fontSize: 16.0),
+                      //                                     border: OutlineInputBorder(
+                      //                                         borderRadius:
+                      //                                         BorderRadius.circular(10.0)),
+                      //                                   ),
+                      //                                   child: DropdownButtonHideUnderline(
+                      //                                     child: DropdownButton<String>(
+                      //                                       style: const TextStyle(
+                      //                                         fontSize: 16,
+                      //                                         color: Colors.grey,
+                      //                                       ),
+                      //                                       hint: const Text(
+                      //                                         "mm",
+                      //                                         style: TextStyle(
+                      //                                           color: Colors.grey,
+                      //                                           fontSize: 16,
+                      //                                         ),
+                      //                                       ),
+                      //                                       items: categoryList
+                      //                                           .map<DropdownMenuItem<String>>(
+                      //                                               (String? value) {
+                      //                                             return DropdownMenuItem(
+                      //                                               value: value,
+                      //                                               child: Row(
+                      //                                                 children: [
+                      //                                                   const SizedBox(
+                      //                                                     width: 15,
+                      //                                                   ),
+                      //                                                   Text(value!),
+                      //                                                 ],
+                      //                                               ),
+                      //                                             );
+                      //                                           }).toList(),
+                      //
+                      //                                       isExpanded: true,
+                      //                                       isDense: true,
+                      //                                       onChanged: (String? newSelectedBank) {
+                      //                                         _onDropDownItemSelected(newSelectedBank);
+                      //                                       },
+                      //                                       value: _category,
+                      //
+                      //                                     ),
+                      //                                   ),
+                      //                                 );
+                      //                               },
+                      //                             ),
+                      //                           ),
+                      //                           SizedBox(width: width*0.02),
+                      //                           Expanded(
+                      //                             child: FormField<String>(
+                      //                               builder: (FormFieldState<String> state) {
+                      //                                 return InputDecorator(
+                      //                                   decoration: InputDecoration(
+                      //                                       contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                      //                                       errorStyle: const TextStyle(
+                      //                                           color: Colors.redAccent, fontSize: 16.0),
+                      //                                       border: OutlineInputBorder(
+                      //                                           borderRadius:
+                      //                                           BorderRadius.circular(10.0))),
+                      //                                   child: DropdownButtonHideUnderline(
+                      //                                     child: DropdownButton<String>(
+                      //                                       style: const TextStyle(
+                      //                                         fontSize: 16,
+                      //                                         color: Colors.grey,
+                      //                                       ),
+                      //                                       hint: const Text(
+                      //                                         "mm",
+                      //                                         style: TextStyle(
+                      //                                           color: Colors.grey,
+                      //                                           fontSize: 16,
+                      //                                         ),
+                      //                                       ),
+                      //                                       items: categoryList
+                      //                                           .map<DropdownMenuItem<String>>(
+                      //                                               (String? value) {
+                      //                                             return DropdownMenuItem(
+                      //                                               value: value,
+                      //                                               child: Row(
+                      //                                                 children: [
+                      //                                                   const SizedBox(
+                      //                                                     width: 15,
+                      //                                                   ),
+                      //                                                   Text(value!),
+                      //                                                 ],
+                      //                                               ),
+                      //                                             );
+                      //                                           }).toList(),
+                      //
+                      //                                       isExpanded: true,
+                      //                                       isDense: true,
+                      //                                       onChanged: (String? newSelectedBank) {
+                      //                                         _onDropDownItemSelected(newSelectedBank);
+                      //                                       },
+                      //                                       value: _category,
+                      //
+                      //                                     ),
+                      //                                   ),
+                      //                                 );
+                      //                               },
+                      //                             ),
+                      //                           ),
+                      //                         ],
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 ),
+                      //                 SizedBox(width: width*0.02),
+                      //                 Expanded(
+                      //                   flex: 1,
+                      //                   child: Column(
+                      //                     children: [
+                      //                       Text('Card Code', style: Utils.masterCard),
+                      //                       TextFormField(
+                      //                         decoration: InputDecoration(
+                      //                             contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                      //                             hintText: "CVC",
+                      //                             errorStyle: const TextStyle(
+                      //                                 color: Colors.redAccent, fontSize: 16.0),
+                      //                             border: OutlineInputBorder(
+                      //                                 borderRadius:
+                      //                                 BorderRadius.circular(10.0))),
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 ),
+                      //               ],
+                      //             ),
+                      //             SizedBox(
+                      //               height: height * 0.03,
+                      //             ),
+                      //             Text('Name on Card',
+                      //                 textAlign: TextAlign.start,
+                      //                 style: Utils.masterCard),
+                      //             TextFormField(
+                      //               controller: cardOnName,
+                      //               keyboardType: TextInputType.phone,
+                      //               validator: (value) {
+                      //                 if (value!.isEmpty) {
+                      //                   return 'Please your name on card';
+                      //                 }
+                      //                 return null;
+                      //               },
+                      //               decoration: InputDecoration(
+                      //                 hintText: "Please your name on card",
+                      //                 // prefixIcon: const Icon(CupertinoIcons.creditcard),
+                      //                 contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
+                      //                 border: OutlineInputBorder(
+                      //                   borderRadius: BorderRadius.circular(8),
+                      //                   borderSide: const BorderSide(
+                      //                     color: Color(0xffE9EBF0),
+                      //                     width: 0.5,
+                      //                   ),
+                      //                 ),
+                      //                 fillColor: const Color(0xffF3F3F3),
+                      //                 filled: true,
+                      //               ),
+                      //             ),
+                      //             SizedBox(
+                      //               height: height * 0.02,
+                      //             ),
+                      //             Row(
+                      //               children: [
+                      //                 Expanded(
+                      //                   child: CupertinoButton(
+                      //                     padding: EdgeInsets.zero,
+                      //                     color: Theme.of(context).primaryColor,
+                      //                     child: const Text("Save & Continue"),
+                      //                     onPressed: (){},
+                      //                   ),
+                      //                 ),
+                      //               ],
+                      //             )
+                      //           ],
+                      //         ),
+                      //       );
+                      //     });
+                    },
+                    child: RadioListTile<Payment>(
+                      visualDensity: const VisualDensity(vertical: -4.0,),
+                      activeColor: Theme.of(context).disabledColor.withOpacity(0.5),
+                      secondary: Image.asset(Assets.assetsVisaLogo, height: 34, width: 34),
+                      title: Text('Visa/Master Card', style: Utils.itemCount,),
+                      subtitle: Text('**** **** **** 1234', style: Utils.coloredTextStyle,),
+                      value: Payment.masterCard,
+                      groupValue: paymentType,
+                      onChanged: (Payment? value) {
+                        // setState(() {
+                        //   paymentType = value!;
+                        // });
+                      },
+                    ),
+                  ),
+                  RadioListTile<Payment>(
+                    visualDensity: const VisualDensity(vertical: -4.0,),
+                    activeColor: Theme.of(context).primaryColor,
+                    secondary: Image.asset(Assets.assetsCode,height: 54, width: 54),
+                    selected: true,
+                    title: Text('Cash On Delivery', style: Utils.itemCount,),
+                    subtitle: Text("+ Add account",style: Utils.coloredTextStyle),
+                    value: Payment.cashOnDelivery,
+                    groupValue: paymentType,
+                    onChanged: (Payment? value) {
+                      setState(() {
+                        paymentType = value!;
                       });
                     },
-                    visualDensity: const VisualDensity(horizontal: -4),
-                    leading: const Icon(CupertinoIcons.chevron_down_circle),
-                    title: Text('Visa/Master Card', style: Utils.itemCount,),
-                    subtitle: Text('**** **** **** 1234', style: Utils.coloredTextStyle,),
-                    trailing: Image.asset(Assets.assetsVisaLogo, height: 34, width: 34,),
-                  ),
-                  ListTile(
-                    dense: true,
-                    visualDensity: const VisualDensity(horizontal: -4),
-                    leading: const Icon(CupertinoIcons.chevron_down_circle),
-                    title: Text('Cash On Delivery', style: Utils.itemCount,),
-                    trailing: Image.asset(Assets.assetsCode,height: 54, width: 54,),
                   ),
                 ],
               ),
@@ -576,7 +572,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                 Utils.flushBarMessage(context, 'not enabled for ios', Colors.red);
                               }
                             },
-                            title: Text('Pickup Address', style: Utils.itemCount,),
+                            title: Text('Pickup Address', style: Utils.itemCount),
                             subtitle: Text('CT7B The Sparks, KDT Duong Noi, Str. Ha Dong,\n Ha Noi',
                               style: Utils.simpleTitleStyle,),
                           ),

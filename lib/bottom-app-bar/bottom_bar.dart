@@ -19,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomePage(),
     const CartPage(),
     const OrderPage(),
-    const AccountPage(),
+     AccountPage(),
   ];
   int selectedIndex = 0;
   @override

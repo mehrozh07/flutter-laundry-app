@@ -8,8 +8,15 @@ import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
 
-class AccountPage extends StatelessWidget {
-  const AccountPage({Key? key}) : super(key: key);
+class AccountPage extends StatefulWidget {
+    AccountPage({Key? key}) : super(key: key);
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+   bool editing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +25,19 @@ class AccountPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Settings',
+          'Account Info',
           style: Utils.appBarStyle,
         ),
         centerTitle: true,
+        actions: [
+              TextButton(
+                  onPressed: (){
+                    editing = !editing;
+                  },
+                  child: editing == true ?
+                  Icon(CupertinoIcons.multiply, size: 30, color: Theme.of(context).primaryColor) :
+              Icon(CupertinoIcons.pen, size: 30, color: Theme.of(context).primaryColor))
+        ],
         automaticallyImplyLeading: false,
       ),
       body: ListView(
@@ -30,9 +46,16 @@ class AccountPage extends StatelessWidget {
           CircleAvatar(
             radius: 60,
             backgroundColor: Colors.grey.shade300,
-            child: const CircleAvatar(
-              radius: 55,
-              backgroundImage: AssetImage(Assets.assetsProfile),
+            child: InkWell(
+              onTap: (){
+
+              },
+              child: CircleAvatar(
+                radius: 55,
+                backgroundImage: userProvider.documentSnapshot?['profile'] == null ?
+                const NetworkImage('http://cdn.onlinewebfonts.com/svg/img_520583.png')  as ImageProvider :
+                NetworkImage(userProvider.documentSnapshot?['profile']),
+              ),
             ),
           ),
           Wrap(
@@ -123,7 +146,8 @@ class AccountPage extends StatelessWidget {
                   onPressed: () {
                     BlocProvider.of<AuthCubit>(context).logout();
                   },
-                  child: const Text('Logout'));
+                  child: Text('Logout', style: TextStyle(color: Theme.of(context).primaryColor)
+                  ));
             },
           )
         ],
