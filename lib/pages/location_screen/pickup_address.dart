@@ -62,6 +62,7 @@ class _PickUpAddressState extends State<PickUpAddress> {
 
   _getUserLocation()async{
     _currentPosition = await _getLocationPermission();
+
     _goToCurrentPosition(LatLng(_currentPosition!.latitude!,_currentPosition!.longitude!));
   }
 

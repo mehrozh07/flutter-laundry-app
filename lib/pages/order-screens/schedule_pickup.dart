@@ -1,10 +1,8 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
-import 'package:laundary_system/pages/map_address/pickup_address.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
@@ -12,6 +10,8 @@ import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/services/cart_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../location_screen/deliver_address.dart';
+import '../location_screen/pickup_address.dart';
 
 class SchedulePickup extends StatefulWidget {
    SchedulePickup({Key? key}) : super(key: key);
@@ -583,7 +583,10 @@ class _SchedulePickupState extends State<SchedulePickup> {
                         ),
                         Expanded(
                           child: ListTile(
-                            onTap: (){},
+                            onTap: (){
+                              Navigator.push(context, CupertinoPageRoute(
+                                  builder: (_)=> const DeliverAddress()));
+                            },
                             title: Text('Delivery Address', style: Utils.itemCount,),
                             subtitle: Text('CT7B The Sparks, KDT Duong Noi, Str. Ha Dong,\n Ha Noi',
                               style: Utils.simpleTitleStyle,),

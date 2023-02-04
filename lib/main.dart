@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:laundary_system/auth-bloc/auth_cubit.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/providers/categories_provider.dart';
+import 'package:laundary_system/providers/location_provider.dart';
 import 'package:laundary_system/providers/service_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/route_names.dart';
@@ -38,6 +39,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_)=> UserProvider()),
         ChangeNotifierProvider(create: (_)=> ServiceProvider()),
         ChangeNotifierProvider(create: (_)=> CartProvider()),
+        ChangeNotifierProvider(create: (_)=> LocationProvider()),
       ],
   child: const MyApp())));
   SystemChrome.setSystemUIOverlayStyle(
