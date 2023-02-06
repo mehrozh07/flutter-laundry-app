@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
+import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
 import 'package:laundary_system/services/user_service.dart';
@@ -51,6 +52,8 @@ class _SchedulePickupState extends State<SchedulePickup> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     var cartProvider = Provider.of<CartProvider>(context);
+    var userProvider = Provider.of<UserProvider>(context);
+    userProvider.getUserData();
     cartProvider.getSubTotal();
 
     return Scaffold(
@@ -75,6 +78,24 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     color: Theme.of(context).primaryColor,
                     child: const Text('Confirm Order'),
                     onPressed: (){
+                      if(userProvider.documentSnapshot?['pickUpLatitude'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
+                      if(userProvider.documentSnapshot?['pickUpLongitude'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
+                      if(userProvider.documentSnapshot?['deliveryLatitude'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
+                      if(userProvider.documentSnapshot?['deliveryLongitude'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
+                      if(userProvider.documentSnapshot?['pickupAddress'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
+                      if(userProvider.documentSnapshot?['deliveryAddress'] == null){
+                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }
                       orderPlaced(cartProvider: cartProvider, paying: cartProvider.total, context: context);
                     }),
               ),
@@ -566,14 +587,12 @@ class _SchedulePickupState extends State<SchedulePickup> {
                         Expanded(
                           child: ListTile(
                             onTap: (){
-                              if(Platform.isAndroid){
-                                Navigator.push(context, CupertinoPageRoute(builder: (_)=> const PickUpAddress()));
-                              }else{
-                                Utils.flushBarMessage(context, 'not enabled for ios', Colors.red);
-                              }
+                              Navigator.push(context, CupertinoPageRoute(builder: (_)=> const PickUpAddress()));
                             },
                             title: Text('Pickup Address', style: Utils.itemCount),
-                            subtitle: Text('CT7B The Sparks, KDT Duong Noi, Str. Ha Dong,\n Ha Noi',
+                            subtitle: userProvider.documentSnapshot?['pickupAddress'] == null?
+                            Text("Please Add PickUp Address", style: Utils.simpleTitleStyle) :
+                            Text("${userProvider.documentSnapshot?['pickupAddress']}",
                               style: Utils.simpleTitleStyle,),
                           ),
                         ),
@@ -584,7 +603,9 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                   builder: (_)=> const DeliverAddress()));
                             },
                             title: Text('Delivery Address', style: Utils.itemCount,),
-                            subtitle: Text('CT7B The Sparks, KDT Duong Noi, Str. Ha Dong,\n Ha Noi',
+                            subtitle: userProvider.documentSnapshot?['deliveryAddress'] == null?
+                              Text("Please Add Delivery Address", style: Utils.simpleTitleStyle) :
+                            Text('${userProvider.documentSnapshot?['deliveryAddress']}',
                               style: Utils.simpleTitleStyle,),
                           ),
                         ),

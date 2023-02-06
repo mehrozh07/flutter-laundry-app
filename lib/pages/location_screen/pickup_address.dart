@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -6,6 +7,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:laundary_system/providers/location_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
+
+import '../../Repositry/Data-Repositry/firebase_api.dart';
 
 enum Address{ Home, Office}
 class PickUpAddress extends StatefulWidget {
@@ -17,7 +20,7 @@ class PickUpAddress extends StatefulWidget {
 
 class _PickUpAddressState extends State<PickUpAddress> {
   var addressType = Address.Home;
-
+  FirebaseApi firebaseApi = FirebaseApi();
 
   final Completer<GoogleMapController> _controller =
   Completer<GoogleMapController>();
@@ -30,9 +33,14 @@ class _PickUpAddressState extends State<PickUpAddress> {
   }
 
   var addressController = TextEditingController();
+  LatLng currentLocation =  LatLng(37.42796133580664, -122.085749655962);
+
   @override
   Widget build(BuildContext context) {
     var locationProvider = Provider.of<LocationProvider>(context);
+    setState(() {
+      currentLocation = LatLng(locationProvider.position!.latitude, locationProvider.position!.longitude);
+    });
     return SafeArea(
       child: Scaffold(
         appBar: PreferredSize(
@@ -59,6 +67,11 @@ class _PickUpAddressState extends State<PickUpAddress> {
                                 minimumSize: const Size(50, 50)
                             ),
                             onPressed: (){
+                              firebaseApi.user.doc(FirebaseAuth.instance.currentUser?.uid).update({
+                                "pickupAddress": locationProvider.address,
+                                "pickUpLatitude": locationProvider.latitude,
+                                "pickUpLongitude": locationProvider.longitude,
+                              });
                               Navigator.of(context).pop();
                             },
                             child: Text("Done",
@@ -144,12 +157,8 @@ class _PickUpAddressState extends State<PickUpAddress> {
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               mapType: MapType.terrain,
-              compassEnabled: true,
-              mapToolbarEnabled: true,
-              initialCameraPosition: const CameraPosition(
-                target: LatLng(
-                  37.42796133580664, -122.085749655962,
-                ),
+              initialCameraPosition: CameraPosition(
+                target: currentLocation,
                 zoom: 14,
               ),
               onMapCreated: (GoogleMapController controller) {

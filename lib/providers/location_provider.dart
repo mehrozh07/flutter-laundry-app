@@ -1,11 +1,11 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:laundary_system/Repositry/Data-Repositry/firebase_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 enum Address{Home, Office}
@@ -23,6 +23,7 @@ class LocationProvider extends ChangeNotifier{
   LatLng get latLng => _latLong;
   Position? _position;
   Position? get position => _position;
+  String? address;
   // set setPosition(Position position){
   //   _position = position;
   //   notifyListeners();
@@ -79,6 +80,8 @@ class LocationProvider extends ChangeNotifier{
      }
     List<Placemark> placemarks = await placemarkFromCoordinates(_latLong.latitude, _latLong.longitude);
     _placeMark = placemarks.first;
+     address = "${_placeMark?.locality},${_placeMark?.subLocality},"
+        " ${_placeMark?.administrativeArea},${_placeMark?.postalCode}, ${_placeMark?.country}";
     notifyListeners();
   }
 
@@ -88,10 +91,10 @@ class LocationProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  updateUser(){
-    firebaseApi.user.doc(FirebaseAuth.instance.currentUser?.uid).update({
-      "deliveryLatitude": _latLong.latitude,
-    });
-    notifyListeners();
+  Future<void> getLocatinData() async{
+     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+     sharedPreferences.setDouble("latitude", _latLong.latitude?? 0);
+     sharedPreferences.setDouble('longitude', _latLong.longitude?? 0);
+     sharedPreferences.setString('address', address ??"");
   }
 }

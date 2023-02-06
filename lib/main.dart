@@ -13,6 +13,7 @@ import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/routes.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Map<int, Color> color = {
   50: const Color.fromRGBO(206, 21, 103, .1),
@@ -31,6 +32,7 @@ Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   runApp(MultiBlocProvider(providers: [
     BlocProvider(create: (_) => AuthCubit()),
   ], child: MultiProvider(

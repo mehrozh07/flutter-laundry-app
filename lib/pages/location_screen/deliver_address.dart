@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:laundary_system/Repositry/Data-Repositry/firebase_api.dart';
 import 'package:laundary_system/providers/location_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +20,7 @@ class DeliverAddress extends StatefulWidget {
 
 class _DeliverAddressState extends State<DeliverAddress> {
   var addressType = Address.Home;
-
-
+  FirebaseApi firebaseApi = FirebaseApi();
   final Completer<GoogleMapController> _controller =
   Completer<GoogleMapController>();
 
@@ -36,7 +36,6 @@ class _DeliverAddressState extends State<DeliverAddress> {
   void initState() {
     var locationProvider = Provider.of<LocationProvider>(context, listen: false);
    locationProvider.getUserAddress();
-   locationProvider.updateUser();
     super.initState();
   }
 
@@ -71,9 +70,14 @@ class _DeliverAddressState extends State<DeliverAddress> {
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.zero,
                               visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                              minimumSize: const Size(50, 50)
+                              minimumSize: const Size(50, 50),
                             ),
                               onPressed: (){
+                              firebaseApi.user.doc(FirebaseAuth.instance.currentUser?.uid).update({
+                                "deliveryAddress": locationProvider.address,
+                                "deliveryLatitude": locationProvider.latitude,
+                                "deliveryLongitude": locationProvider.longitude,
+                              });
                             Navigator.of(context).pop();
                           },
                               child: Text("Done",
