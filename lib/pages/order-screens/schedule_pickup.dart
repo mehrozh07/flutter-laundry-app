@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -630,6 +631,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
       "pickupTime": pickUpTime.text,
       "deliveryTime": deliveryTime.text,
       "orderPlacingTime": DateTime.now(),
+      "orderId": Random().nextInt(10000).toString(),
       "orderStatus": "Placed",
       "assignedDeliveryBoy": {
         "name": "",

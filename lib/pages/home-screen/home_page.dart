@@ -327,8 +327,8 @@ class HomePage extends StatelessWidget {
                                         title: Wrap(
                                           crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
-                                            Text("Order #123", style: Utils.blackHome),
-                                            Text("(2 bags)", style: Utils.simpleTitleStyle,),
+                                            Text("Order #${document['orderId']}", style: Utils.blackHome),
+                                            Text("(${document['laundries'].length} bags)", style: Utils.simpleTitleStyle,),
                                           ],
                                         ),
                                         trailing: Padding(

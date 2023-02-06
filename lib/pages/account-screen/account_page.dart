@@ -1,8 +1,11 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:laundary_system/Repositry/Data-Repositry/firebase_api.dart';
 import 'package:laundary_system/auth-bloc/auth_cubit.dart';
-import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/pages/auth-screens/phone_login_ui.dart';
 import 'package:laundary_system/providers/user_provider.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
@@ -16,8 +19,28 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-   bool editing = false;
+  FirebaseApi firebaseApi = FirebaseApi();
+  var name = TextEditingController();
+  var address = TextEditingController();
+  var emailC = TextEditingController();
+  var mobile = TextEditingController();
+  var pinCode = TextEditingController();
+  var status = TextEditingController();
 
+   bool editing = true;
+   File? _image;
+
+    @override
+  void initState() {
+      var userProvider = Provider.of<UserProvider>(context, listen: false);
+      if(userProvider.documentSnapshot!.exists){
+        name.text =  userProvider.documentSnapshot?['name'] ?? "Name" ;
+        address.text = userProvider.documentSnapshot?['status'] ?? "status";
+        mobile.text = userProvider.documentSnapshot?['phoneNumber'];
+        pinCode.text = userProvider.documentSnapshot?['deliveryAddress']?? "Update Address";
+      }
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     var userProvider = Provider.of<UserProvider>(context);
@@ -29,14 +52,33 @@ class _AccountPageState extends State<AccountPage> {
           style: Utils.appBarStyle,
         ),
         centerTitle: true,
+        leading: TextButton(
+            onPressed: (){
+              setState(() {
+                editing = !editing;
+              });
+            },
+            child: editing == false ?
+            Icon(CupertinoIcons.multiply, size: 30, color: Theme.of(context).primaryColor) :
+            Icon(CupertinoIcons.pen, size: 30, color: Theme.of(context).primaryColor)),
         actions: [
-              TextButton(
-                  onPressed: (){
-                    editing = !editing;
-                  },
-                  child: editing == true ?
-                  Icon(CupertinoIcons.multiply, size: 30, color: Theme.of(context).primaryColor) :
-              Icon(CupertinoIcons.pen, size: 30, color: Theme.of(context).primaryColor))
+              Visibility(
+                visible: editing ? false : true,
+                child: TextButton(
+                    onPressed: (){
+                      firebaseApi.user.doc(firebaseApi.uid?.uid).update({
+                        "name": name.text,
+                        "status": address.text,
+                      });
+                      setState(() {
+                        editing = !editing;
+                      });
+                    },
+                    child: editing == false ?
+                    Icon(CupertinoIcons.checkmark, size: 30, color: Theme.of(context).primaryColor) :
+                 const Icon(null),
+                ),
+              ),
         ],
         automaticallyImplyLeading: false,
       ),
@@ -48,25 +90,76 @@ class _AccountPageState extends State<AccountPage> {
             backgroundColor: Colors.grey.shade300,
             child: InkWell(
               onTap: (){
-
+                if(userProvider.documentSnapshot?['profile']==null){
+                  showDialog(context: context, builder: (context){
+                    return Dialog(
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _image == null ?
+                                  const NetworkImage('https://www.pngkit.com/png/full/335-3351353'
+                                      '_the-application-process-create-account-icon-png.png') as ImageProvider
+                                   : FileImage(_image!),
+                            ),
+                            Positioned(
+                              right: 90,
+                              top: 65,
+                              child: GestureDetector(
+                                onTap: () {
+                                  userProvider.pickImageGallery(context).then((value) {
+                                    _image = value;
+                                    userProvider.isPickAvail = true;
+                                  });
+                                },
+                                child: const Icon(Icons.add_a_photo_outlined,
+                                  size: 40,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 160,
+                              child: IconButton(
+                                  onPressed: (){
+                                    if(userProvider.isPickAvail == true){
+                                      userProvider.uploadProfileImage(userProvider.image!.path,
+                                          DateTime.fromMillisecondsSinceEpoch(100).toString()).then((value){
+                                        FirebaseFirestore.instance.collection('users')
+                                            .doc(FirebaseAuth.instance.currentUser?.uid).update({
+                                          "profile": value,
+                                        }).then((value){
+                                          Navigator.pop(context);
+                                        });
+                                      });
+                                    }else{
+                                      Utils.flushBarMessage(context , 'please pick Image', Colors.redAccent);
+                                    }
+                                  },
+                                  icon: const Icon(CupertinoIcons.checkmark
+                              )),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  });
+                }
               },
               child: CircleAvatar(
                 radius: 55,
                 backgroundImage: userProvider.documentSnapshot?['profile'] == null ?
-                const NetworkImage('http://cdn.onlinewebfonts.com/svg/img_520583.png')  as ImageProvider :
+                const NetworkImage('https://www.pngkit.com/png/full/335-3351353_the-application-process-create-account-icon-png.png')  as ImageProvider :
                 NetworkImage(userProvider.documentSnapshot?['profile']),
               ),
             ),
           ),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            alignment: WrapAlignment.center,
-            children: [
-              Text('${userProvider.documentSnapshot?['name']}',
-                  textAlign: TextAlign.center, style: Utils.itemCount),
-              const Icon(Icons.edit),
-            ],
-          ),
+          Text('${userProvider.documentSnapshot?['name']}',
+              textAlign: TextAlign.center, style: Utils.itemCount),
            Text('${userProvider.documentSnapshot?['status']}',
               textAlign: TextAlign.center,
                style: const TextStyle(
@@ -78,32 +171,56 @@ class _AccountPageState extends State<AccountPage> {
           ),
           Card(
             color: const Color(0xffE9EBF0),
-            child: Column(
-              children: const [
-                ListTile(
-                  title: Text('Account Info'),
-                  trailing: Icon(CupertinoIcons.person),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: AbsorbPointer(
+                  absorbing: editing,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: name,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: Icon(CupertinoIcons.person),
+                        ),
+                      ),
+                      const Divider(),
+                      TextFormField(
+                        controller: mobile,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: Icon(CupertinoIcons.phone_circle),
+                        ),
+                      ),
+                      const Divider(),
+                      TextFormField(
+                        controller: address,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: Icon(CupertinoIcons.staroflife),
+                        ),
+                      ),
+                      const Divider(),
+                      TextFormField(
+                        controller: pinCode,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: Icon(CupertinoIcons.location),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Divider(),
-                ListTile(
-                  title: Text('My Address'),
-                  trailing: Icon(CupertinoIcons.location),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Change Password'),
-                  trailing: Icon(CupertinoIcons.lock_shield),
-                ),
-              ],
+              ),
             ),
           ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.01,
           ),
-          Text('Others', textAlign: TextAlign.start, style: Utils.itemCount),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.01,
-          ),
+
           Card(
             color: const Color(0xffE9EBF0),
             child: Column(
@@ -111,21 +228,6 @@ class _AccountPageState extends State<AccountPage> {
                 ListTile(
                   title: Text('Reports & Feedback'),
                   trailing: Icon(CupertinoIcons.text_bubble),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Refer & Earn'),
-                  trailing: Icon(Icons.share),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('App Notification'),
-                  trailing: Icon(CupertinoIcons.bell),
-                ),
-                Divider(),
-                ListTile(
-                  title: Text('Settings'),
-                  trailing: Icon(CupertinoIcons.settings_solid),
                 ),
               ],
             ),
