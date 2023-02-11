@@ -11,13 +11,13 @@ import '../models/service_model.dart';
 class AddToCartWidget extends StatefulWidget {
   final ServiceModel? service;
   final String? productId;
+
   const AddToCartWidget({Key? key, this.service, this.productId})
       : super(key: key);
 
   @override
   State<AddToCartWidget> createState() => _AddToCartWidgetState();
 }
-
 class _AddToCartWidgetState extends State<AddToCartWidget> {
   UserService userService = UserService();
   User? user = FirebaseAuth.instance.currentUser;

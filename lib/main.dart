@@ -32,7 +32,8 @@ Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp();
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
+  prefs.timeout(const Duration(seconds: 10));
   runApp(MultiBlocProvider(providers: [
     BlocProvider(create: (_) => AuthCubit()),
   ], child: MultiProvider(
@@ -75,7 +76,7 @@ class _MyAppState extends State<MyApp> {
       title: 'Laundry Service',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: MaterialColor((0xffCE1567), color),
+        primarySwatch: MaterialColor(0xffCE1567, color),
         primaryColor: const Color(0xffCE1567),
         useMaterial3: true,
       ),

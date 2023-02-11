@@ -63,8 +63,7 @@ class _CartCounterState extends State<CartCounter> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var cartProvider = Provider.of<CartProvider>(context);
-    return exist?
-      Row(
+      return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -81,7 +80,7 @@ class _CartCounterState extends State<CartCounter> {
             ),
             onPressed: (){
               setState(() {
-                updating = true;
+                exist = true;
               });
               if (quantity == 1) {
                 cartProvider.deleteCart(widget.service?.productId, context).then((value){
@@ -132,56 +131,7 @@ class _CartCounterState extends State<CartCounter> {
               child: const Icon(CupertinoIcons.add)),
         ),
       ],
-    ) :
-    Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: 24,
-          width: 24,
-          child: FilledButton.tonal(
-            style: FilledButton.styleFrom(
-              padding: EdgeInsets.zero,
-              side: const BorderSide(
-                color: Color(0xffC3C8D2),
-              ),
-            ),
-            onPressed: null,
-            child: const Icon(CupertinoIcons.minus),
-          ),
-        ),
-        SizedBox(width: width*0.01,),
-        Text('0', style: Utils.itemCount,),
-        SizedBox(width: width*0.01),
-        SizedBox(
-          height: 24,
-          width: 24,
-          child: FilledButton.tonal(
-              style: FilledButton.styleFrom(
-                padding: EdgeInsets.zero,
-                side: const BorderSide(
-                  color: Color(0xffC3C8D2),
-                ),
-              ),
-              onPressed: (){
-                userService.addToCart(
-                    name: widget.service?.name,
-                    image: widget.service?.image,
-                    id: widget.service?.productId,
-                    price: widget.service?.price,
-                    serviceType: widget.service?.serviceType)
-                    .then((snapshot) {
-                  Utils.flushBarMessage(context, "Item added to cart", const Color(0xff219653));
-                });
-                setState(() {
-                  exist = true;
-                });
-              },
-              child: const Icon(CupertinoIcons.add)),
-        ),
-      ],
-    ) ;
+    );
+
   }
 }

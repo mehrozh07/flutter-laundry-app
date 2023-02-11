@@ -71,14 +71,17 @@ class HomePage extends StatelessWidget {
                     icon: Icon(
                       CupertinoIcons.bell,
                       color: Theme.of(context).primaryColor,
-                    )),
+                    ),
+                ),
               ),
               dense: true,
               visualDensity: const VisualDensity(horizontal: -4),
-              leading: const CircleAvatar(
+              leading: CircleAvatar(
                 radius: 25,
                 backgroundColor: Colors.white,
-                backgroundImage: AssetImage(Assets.assetsProfile),
+                backgroundImage: userProvider.documentSnapshot?['profile'] != null?
+                NetworkImage(userProvider.documentSnapshot?['profile']) :
+                const AssetImage(Assets.assetsAppIcon) as ImageProvider,
               ),
               title: Text(
                 '${userProvider.documentSnapshot?['name']}',

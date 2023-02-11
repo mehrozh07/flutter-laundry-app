@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
@@ -12,6 +13,7 @@ import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/services/cart_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../location_screen/deliver_address.dart';
 import '../location_screen/pickup_address.dart';
 enum Payment{payPal, masterCard,cashOnDelivery}
@@ -24,6 +26,8 @@ class SchedulePickup extends StatefulWidget {
 
 class _SchedulePickupState extends State<SchedulePickup> {
   var paymentType = Payment.cashOnDelivery;
+  String? deviceToken;
+   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   CartService cartService = CartService();
   UserService userService = UserService();
   final cardNumber = TextEditingController();
@@ -31,7 +35,6 @@ class _SchedulePickupState extends State<SchedulePickup> {
   final pickUpTime = TextEditingController();
   final deliveryTime = TextEditingController();
   String? pickedDate;
-
   // String? _category = 'mm';
   //
   //  final List<String> categoryList=["01", "02", "03","04","05", "06", "07", "08", "09", "10", "11", "12"];
@@ -47,6 +50,20 @@ class _SchedulePickupState extends State<SchedulePickup> {
   //   super.initState();
   // }
   DateTime? selectedDate;
+  void getUserToken() async{
+    await _firebaseMessaging.getToken().then((token){
+      setState(() {
+        deviceToken = token;
+        print(deviceToken);
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    getUserToken();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +114,13 @@ class _SchedulePickupState extends State<SchedulePickup> {
                       if(userProvider.documentSnapshot?['deliveryAddress'] == null){
                         Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
                       }
-                      orderPlaced(cartProvider: cartProvider, paying: cartProvider.total, context: context);
+                      orderPlaced(
+                          cartProvider: cartProvider,
+                          paying: cartProvider.total,
+                          context: context,
+                          userProvider: userProvider,
+                          token: deviceToken,
+                      );
                     }),
               ),
             ],
@@ -622,7 +645,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
       ),
     );
   }
-  orderPlaced({required CartProvider cartProvider, paying, context}){
+  orderPlaced({required CartProvider cartProvider, paying, context, UserProvider? userProvider, token}){
     cartService.orderPlacing({
       "laundries": cartProvider.orderPlaced,
       "userId": FirebaseAuth.instance.currentUser?.uid,
@@ -633,6 +656,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
       "orderPlacingTime": DateTime.now(),
       "orderId": Random().nextInt(10000).toString(),
       "orderStatus": "Placed",
+      "userDeviceToken": token,
       "assignedDeliveryBoy": {
         "name": "",
         "phone": "",

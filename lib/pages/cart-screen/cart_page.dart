@@ -1,13 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:laundary_system/providers/service_provider.dart';
+import 'package:laundary_system/widgets/add_to_cart_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../services/user_service.dart';
+import '../../utils/Utils_widget.dart';
 
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({Key? key}) : super(key: key);
 
   @override
+  State<CartPage> createState() => _CartPageState();
+}
+
+class _CartPageState extends State<CartPage> {
+  UserService userService = UserService();
+  User? user = FirebaseAuth.instance.currentUser;
+  String? _category = '';
+
+  final List<String> categoryList=["Men", "Woman", "Kid"];
+  void _onDropDownItemSelected(String? newSelectedBank) {
+    setState(() {
+      _category = newSelectedBank;
+    });
+  }
+  @override
+  void initState() {
+    _category = categoryList[0];
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var serviceProvider = Provider.of<ServiceProvider>(context);
+    serviceProvider.getService();
     return SafeArea(
       child: Scaffold(
         body: StreamBuilder<QuerySnapshot>(
@@ -90,10 +120,84 @@ class CartPage extends StatelessWidget {
             }
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                // Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
-                return const ListTile(
-                  title: Text('sfs'),
-                  subtitle: Text("sdfs"),
+                return ListTile(
+                  title: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text('${document['name']}',
+                          style: Utils.orderListName),
+                      Text(' (${document["serviceType"]})',
+                          style: Utils.textSubtitle),
+                    ],
+                  ),
+                  subtitle: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    alignment: WrapAlignment.start,
+                    children: [
+                      Text('Rs.${document['price']}',
+                        style: Utils.headlineTextStyle,),
+                      SizedBox(width: width*0.01),
+                      SizedBox(
+                        height: height*0.07,
+                        width: width*0.26,
+                        child: FormField<String>(
+                          validator: (value){
+                            if(value!.isEmpty){
+                              return "*gender";
+                            }
+                            setState(() {
+                              _category = value;
+                            });
+                            return null;
+                          },
+                          builder: (FormFieldState<String> state) {
+                            return InputDecorator(
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.zero,
+                                border: InputBorder.none,
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  icon: const Icon(CupertinoIcons.chevron_down,
+                                    color: Color(0xff38106A),
+                                  ),
+                                  style: Utils.simpleText,
+                                  hint: Text(
+                                    "gender?",
+                                    style: Utils.simpleText,
+                                  ),
+                                  items: categoryList.map<DropdownMenuItem<String>>(
+                                          (String? value) {
+                                        return DropdownMenuItem(
+                                          value: value,
+                                          child: Row(
+                                            children: [
+                                              SizedBox(
+                                                width: width*0.02,
+                                              ),
+                                              Text("$value"),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                  isExpanded: true,
+                                  isDense: true,
+                                  onChanged: (String? newSelectedBank) {
+                                    _onDropDownItemSelected(newSelectedBank);
+                                  },
+                                  value: _category,
+
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  trailing: AddToCartWidget(
+                    productId: document['cartId'],
+                  ),
                 );
               }).toList(),
             );

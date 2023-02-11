@@ -14,6 +14,7 @@ class UserProvider extends ChangeNotifier{
   DocumentSnapshot? documentSnapshot;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+
   Future<DocumentSnapshot> getUserData() async{
     DocumentSnapshot result = await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser?.uid).get();
     documentSnapshot = result;
