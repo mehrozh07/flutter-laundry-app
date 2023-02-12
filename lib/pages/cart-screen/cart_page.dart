@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/providers/service_provider.dart';
+import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/widgets/add_to_cart_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -121,6 +122,7 @@ class _CartPageState extends State<CartPage> {
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
                 return ListTile(
+
                   title: Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [

@@ -1,9 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:laundary_system/services/order_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 
 class OrderDetails extends StatelessWidget {
-  const OrderDetails({Key? key}) : super(key: key);
+  final DocumentSnapshot? snapshot;
+   OrderDetails({Key? key, this.snapshot}) : super(key: key);
+  OrderService orderService = OrderService();
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,7 @@ class OrderDetails extends StatelessWidget {
             style: Utils.boldTextStyle,
           ),
           Text(
-            'Your pickup has been confirmed',
+            'Your pickup has been ${snapshot?['orderStatus']}',
             textAlign: TextAlign.center,
             style: Utils.subtitle,
           ),
@@ -73,16 +77,16 @@ class OrderDetails extends StatelessWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        'Order #123',
+                        'Order #${snapshot?['orderId']}',
                         style: Utils.blackBoldStyle,
                       ),
                       Text(
-                        '(2 bags)',
+                        '(${snapshot?['laundries'].length} bags)',
                         style: Utils.textSubtitle,
                       ),
                     ],
                   ),
-                  subtitle: const Text("11:35 AM, Thu, 15 Jun 2019"),
+                  subtitle: orderService.getOrderPickupDateTime(snapshot),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
@@ -95,102 +99,38 @@ class OrderDetails extends StatelessWidget {
                 //     color: Theme.of(context).primaryColor,
                 //   ),
                 // ),
-                ExpansionTile(
-                  title: Text(
-                    'Wash & Fold',
-                    style: Utils.orderListName,
-                  ),
-                  children: [
-                    ListTile(
-                      visualDensity: const VisualDensity(vertical: -4),
-                      title: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            '2 x  Tshirt',
-                            style: Utils.appBarStyle,
-                          ),
-                          Text(
-                            '(Men)',
-                            style: Utils.textSubtitle,
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        '\$9',
-                        style: Utils.coloredTextStyle,
-                      ),
+                ListView.builder(
+                    shrinkWrap: true,
+                     itemCount: snapshot?['laundries'].length,
+                    itemBuilder: (context, index){
+                  return ExpansionTile(
+                    title: Text( '${snapshot?['laundries'][index]['serviceType']}',
+                      style: Utils.orderListName,
                     ),
-                    ListTile(
-                      visualDensity: const VisualDensity(vertical: -4),
-                      title: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            '2 x  Tshirt',
-                            style: Utils.appBarStyle,
-                          ),
-                          Text(
-                            '(Men)',
-                            style: Utils.textSubtitle,
-                          ),
-                        ],
+                    children: [
+                      ListTile(
+                        visualDensity: const VisualDensity(vertical: -4),
+                        title: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              '${snapshot?['laundries'][index]['quantity']}x ${snapshot?['laundries'][index]['name']}',
+                              style: Utils.appBarStyle,
+                            ),
+                            Text(
+                              '(Men)',
+                              style: Utils.textSubtitle,
+                            ),
+                          ],
+                        ),
+                        trailing: Text(
+                          'Rs.${snapshot?['laundries'][index]['total']}',
+                          style: Utils.coloredTextStyle,
+                        ),
                       ),
-                      trailing: Text(
-                        '\$9',
-                        style: Utils.coloredTextStyle,
-                      ),
-                    ),
-                  ],
-                ),
-                ExpansionTile(
-                  title: Text(
-                    'Wash & Iron',
-                    style: Utils.orderListName,
-                  ),
-                  children: [
-                    ListTile(
-                      visualDensity: const VisualDensity(vertical: -4),
-                      title: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            '2 x  Tshirt',
-                            style: Utils.appBarStyle,
-                          ),
-                          Text(
-                            '(Men)',
-                            style: Utils.textSubtitle,
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        '\$9',
-                        style: Utils.coloredTextStyle,
-                      ),
-                    ),
-                    ListTile(
-                      visualDensity: const VisualDensity(vertical: -4),
-                      title: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Text(
-                            '2 x  Tshirt',
-                            style: Utils.appBarStyle,
-                          ),
-                          Text(
-                            '(Men)',
-                            style: Utils.textSubtitle,
-                          ),
-                        ],
-                      ),
-                      trailing: Text(
-                        '\$9',
-                        style: Utils.coloredTextStyle,
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
                 const Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
                   child: Divider(),
@@ -198,12 +138,13 @@ class OrderDetails extends StatelessWidget {
                 ListTile(
                   visualDensity: const VisualDensity(vertical: -4),
                   title: Text('Subtotal', style: Utils.simpleText),
-                  trailing: Text('\$220.23', style: Utils.itemCount),
+                  trailing: Text('Rs.${snapshot?['totalPaying']}',
+                      style: Utils.itemCount),
                 ),
                 ListTile(
                   visualDensity: const VisualDensity(vertical: -4),
                   title: Text('Tax', style: Utils.simpleText),
-                  trailing: Text('\$10', style: Utils.itemCount),
+                  trailing: Text('Rs.10', style: Utils.itemCount),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
@@ -212,7 +153,7 @@ class OrderDetails extends StatelessWidget {
                 ListTile(
                   visualDensity: const VisualDensity(vertical: -4),
                   title: Text('Total', style: Utils.orderListName),
-                  trailing: Text('\$230.23', style: Utils.headlineTextStyle),
+                  trailing: Text('Rs.${snapshot?['totalPaying'] + 10} ', style: Utils.headlineTextStyle),
                 ),
               ],
             ),
@@ -329,7 +270,7 @@ class OrderDetails extends StatelessWidget {
                                             ),
                                             Expanded(
                                               child: TextButton(
-                                                onPressed: null,
+                                                onPressed: (){},
                                                 style: TextButton.styleFrom(
                                                   padding: EdgeInsets.zero,
                                                   visualDensity: const VisualDensity(horizontal: -4),
@@ -346,44 +287,43 @@ class OrderDetails extends StatelessWidget {
                                         Expanded(
                                           child: Column(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: const [
+                                            children: [
                                               Expanded(
                                                 child: ListTile(
                                                   dense: true,
-                                                  visualDensity: VisualDensity(vertical: -4),
-                                                  title: Text('Confirmed'),
-                                                  subtitle:
-                                                  Text('Wed, 6 Jun 2019'),
-                                                  trailing: Text('10:00 PM'),
+                                                  visualDensity: const VisualDensity(vertical: -4),
+                                                  title: const Text('Confirmed'),
+                                                  subtitle: orderService.getOrderConfirmDate(snapshot),
+                                                  trailing: orderService.getOrderConfirmTime(snapshot),
                                                 ),
                                               ),
-                                              Divider(thickness: 2,),
-                                              Expanded(
+                                              const Divider(thickness: 2,),
+                                               Expanded(
                                                 child: ListTile(
                                                   dense: true,
-                                                  visualDensity: VisualDensity(vertical: -2),
-                                                  title: Text('Picked up'),
-                                                  subtitle: Text('Wed, 6 Jun 2019'),
-                                                  trailing: Text('10:00 PM'),
+                                                  visualDensity: const VisualDensity(vertical: -2),
+                                                  title: const Text('Picked up'),
+                                                  subtitle: orderService.getOrderpickupDate(snapshot),
+                                                  trailing: orderService.getOrderpickupTime(snapshot),
                                                 ),
                                               ),
-                                              Divider(thickness: 2,),
+                                              const Divider(thickness: 2,),
                                             Expanded(
                                               child: ListTile(
-                                                visualDensity: VisualDensity(vertical: 0),
+                                                visualDensity: const VisualDensity(vertical: 0),
                                                 dense: true,
-                                                title: Text('In Progress'),
-                                                subtitle: Text('Wed, 6 Jun 2019'),
-                                                trailing: Text('10:00 PM'),
+                                                title: const Text('In Progress'),
+                                                subtitle: orderService.getOrderProgressDate(snapshot),
+                                                trailing: orderService.getOrderProgressTime(snapshot),
                                               ),
                                             ),
-                                              Divider(thickness: 2,),
+                                              const Divider(thickness: 2,),
                                               Expanded(
                                                 child: ListTile(
                                                   dense: true,
-                                                  visualDensity: VisualDensity(vertical: 2),                                                  title: Text('Delivered'),
-                                                  subtitle: Text('Wed, 6 Jun 2019'),
-                                                  trailing: Text('10:00 PM'),
+                                                  visualDensity: const VisualDensity(vertical: 2),                                                  title: Text('Delivered'),
+                                                  subtitle: orderService.getOrderDeliveredDate(snapshot),
+                                                  trailing: orderService.getOrderDeliveredTime(snapshot),
                                                 ),
                                               ),
                                             ],

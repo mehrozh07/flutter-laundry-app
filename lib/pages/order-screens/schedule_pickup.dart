@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -16,9 +17,11 @@ import 'package:intl/intl.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../location_screen/deliver_address.dart';
 import '../location_screen/pickup_address.dart';
+
 enum Payment{payPal, masterCard,cashOnDelivery}
+
 class SchedulePickup extends StatefulWidget {
-   SchedulePickup({Key? key}) : super(key: key);
+   const SchedulePickup({Key? key}) : super(key: key);
 
   @override
   State<SchedulePickup> createState() => _SchedulePickupState();
@@ -27,7 +30,7 @@ class SchedulePickup extends StatefulWidget {
 class _SchedulePickupState extends State<SchedulePickup> {
   var paymentType = Payment.cashOnDelivery;
   String? deviceToken;
-   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   CartService cartService = CartService();
   UserService userService = UserService();
   final cardNumber = TextEditingController();
@@ -54,7 +57,9 @@ class _SchedulePickupState extends State<SchedulePickup> {
     await _firebaseMessaging.getToken().then((token){
       setState(() {
         deviceToken = token;
-        print(deviceToken);
+        if (kDebugMode) {
+          print(deviceToken);
+        }
       });
     });
   }
@@ -181,11 +186,9 @@ class _SchedulePickupState extends State<SchedulePickup> {
                       borderSide: BorderSide(color: Theme.of(context).primaryColor),
                     ),
                     labelText: "Pickup Time",
-                    // prefixText: "${startDate.day},${startDate.month},${startDate.month} "
-                    //     "\n 10 : 20 : 00",
                     prefixIcon: InkWell(
                         onTap: () async{
-                          final  _selectedRange = await showDatePicker(
+                          final  selectedRange0 = await showDatePicker(
                               context: context,
                               initialEntryMode: DatePickerEntryMode.calendar,
                               initialDate: DateTime.now(),
@@ -208,11 +211,12 @@ class _SchedulePickupState extends State<SchedulePickup> {
                                 child: child!,
                               )
                           );
-                          if(_selectedRange != null){
-                            pickUpTime.text = DateFormat.yMMMd('en_US').add_jm().format(_selectedRange);
-                            print(_selectedRange);
+                          if(selectedRange0 != null){
+                            pickUpTime.text = selectedRange0.toString();
+                            if (kDebugMode) {
+                              print(pickUpTime.text);
+                            }
                           }
-
                         },
                         child: const Icon(CupertinoIcons.calendar_badge_plus)),
                   ),
@@ -253,8 +257,10 @@ class _SchedulePickupState extends State<SchedulePickup> {
                           )
                           );
                           if(selectedRange != null){
-                            deliveryTime.text = DateFormat.yMMMd('en_US').add_jm().format(selectedRange);
-                            print(selectedRange);
+                            deliveryTime.text = selectedRange.toString();
+                            if (kDebugMode) {
+                              print(deliveryTime.text);
+                            }
                           }
                         },
                         child: const Icon(CupertinoIcons.calendar_today)),
@@ -651,12 +657,16 @@ class _SchedulePickupState extends State<SchedulePickup> {
       "userId": FirebaseAuth.instance.currentUser?.uid,
       "customerPhone": FirebaseAuth.instance.currentUser?.phoneNumber,
       "totalPaying": paying,
-      "pickupTime": pickUpTime.text,
-      "deliveryTime": deliveryTime.text,
+      "pickupTime": Timestamp.fromDate(DateTime.parse(pickUpTime.text)),
+      "deliveryTime": Timestamp.fromDate(DateTime.parse(deliveryTime.text)),
       "orderPlacingTime": DateTime.now(),
       "orderId": Random().nextInt(10000).toString(),
       "orderStatus": "Placed",
       "userDeviceToken": token,
+      "orderConfirmTime": null,
+      "orderPickupTime": null,
+      "orderDeliveredTime": null,
+      "orderProgressTime": null,
       "assignedDeliveryBoy": {
         "name": "",
         "phone": "",

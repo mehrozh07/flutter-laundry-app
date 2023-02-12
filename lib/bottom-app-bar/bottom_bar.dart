@@ -16,9 +16,9 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
 
   final screens = [
-    const HomePage(),
+     HomePage(),
     const CartPage(),
-    const OrderPage(),
+     OrderPage(),
      AccountPage(),
   ];
   int selectedIndex = 0;

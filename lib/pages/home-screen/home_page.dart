@@ -6,6 +6,7 @@ import 'package:laundary_system/models/catogory_model.dart';
 import 'package:laundary_system/pages/order-screens/order_list.dart';
 import 'package:laundary_system/providers/categories_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
+import 'package:laundary_system/services/order_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,7 +14,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+   HomePage({Key? key}) : super(key: key);
+  OrderService orderService = OrderService();
 
   @override
   Widget build(BuildContext context) {
@@ -336,7 +338,8 @@ class HomePage extends StatelessWidget {
                                         ),
                                         trailing: Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text("\$80", style: Utils.headlineTextStyle,),
+                                          child: Text("Rs.${document['totalPaying']}",
+                                            style: Utils.headlineTextStyle,),
                                         ),
                                       ),
                                       Row(
@@ -345,8 +348,8 @@ class HomePage extends StatelessWidget {
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('10:00', style: Utils.boldHome),
-                                              Text('Thu, 1 Apr',style: Utils.textSubtitle),
+                                              orderService.getorderPickUpTime(document),
+                                              orderService.getorderPickUpDate(document),
                                             ],
                                           ),
                                           Container(
@@ -370,8 +373,8 @@ class HomePage extends StatelessWidget {
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('10:00', style: Utils.boldHome),
-                                              Text('Thu, 1 Apr',style: Utils.textSubtitle),
+                                              orderService.getOrderDeliveryTime(document),
+                                              orderService.getOrderDeliveryDate(document),
                                             ],
                                           ),
                                         ],
