@@ -21,7 +21,7 @@ class LocationProvider extends ChangeNotifier{
   Placemark? get placeMark  => _placeMark;
    LatLng _latLong = LatLng(37.42796133580664, -122.085749655962);
   LatLng get latLng => _latLong;
-  Position? _position;
+   Position? _position;
   Position? get position => _position;
   String? address;
   // set setPosition(Position position){

@@ -8,62 +8,64 @@ import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../services/cart_service.dart';
+
 class CartCounter extends StatefulWidget {
-  final ServiceModel? service;
-  const CartCounter({Key? key, this.service}) : super(key: key);
+  final DocumentSnapshot snapshot;
+  const CartCounter({Key? key,required this.snapshot}) : super(key: key);
 
   @override
   State<CartCounter> createState() => _CartCounterState();
 }
 
 class _CartCounterState extends State<CartCounter> {
-  UserService userService = UserService();
   User? user = FirebaseAuth.instance.currentUser;
-  bool loading = true;
+  UserService userService = UserService();
+  int quantity = 1;
+  bool exist = false;
   bool updating = false;
+  CartService cartService = CartService();
+  String? docId;
   var total;
 
-  getCartData() async{
-    var snapShot  = await userService.cart.doc(user?.uid).collection('products').get();
-    if(snapShot.docs.isEmpty){
-      setState(() {
-        loading = false;
-      });
-    }else{
-      setState(() {
-        loading = false;
-      });
-    }
-  }
-  bool exist = false;
-  int quantity = 1;
-  String? docId;
-  String? name;
-  getData(){
+  void getCart() async {
     FirebaseFirestore.instance
-        .collection('myCart').doc(user?.uid).collection('products')
-        .where('productId', isEqualTo: widget.service?.productId)
+        .collection('myCart')
+        .doc(user?.uid)
+        .collection('products')
+        .where('productId', isEqualTo: widget.snapshot['productId'])
         .get()
         .then((QuerySnapshot querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        if(mounted){
-          if(doc['productId'] == widget.service?.productId){
-            setState(() {
-              exist = true;
-              quantity = doc['quantity'];
-              // name = doc['name'];
-              docId = doc.id;
-            });
+      if(mounted){
+        if(querySnapshot.docs.isNotEmpty){
+          for (var doc in querySnapshot.docs) {
+            if (doc['productId'] == widget.snapshot['productId']) {
+              setState(() {
+                quantity = doc['quantity'];
+                docId = doc.id;
+                exist = true;
+              });
+            }
           }
+        }else{
+          setState(() {
+            exist = false;
+          });
         }
       }
     });
   }
   @override
+  void initState() {
+    getCart();
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var cartProvider = Provider.of<CartProvider>(context);
-      return Row(
+      return exist == true ?
+      Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -83,7 +85,7 @@ class _CartCounterState extends State<CartCounter> {
                 exist = true;
               });
               if (quantity == 1) {
-                cartProvider.deleteCart(widget.service?.productId, context).then((value){
+                cartProvider.deleteCart(widget.snapshot.id, context).then((value){
                   setState(() {
                     updating = true;
                     exist = false;
@@ -96,18 +98,21 @@ class _CartCounterState extends State<CartCounter> {
                   quantity--;
                 });
               }
-              var total = quantity*widget.service!.price!;
+              var total = quantity*widget.snapshot['price']!;
               userService.updateCart(docId, quantity, total, context).then((value){
-                setState(() {
-                  updating = true;
-                });
+                if(mounted){
+                  setState(() {
+                    updating = true;
+                  });
+                }
               });
             },
             child: const Icon(CupertinoIcons.minus),
           ),
         ),
         SizedBox(width: width*0.01,),
-        Text('$quantity',style: Utils.itemCount,),
+        Text('$quantity',
+          style: Utils.itemCount,),
         SizedBox(width: width*0.01),
         SizedBox(
           height: 24,
@@ -124,14 +129,15 @@ class _CartCounterState extends State<CartCounter> {
                   updating = true;
                   quantity++;
                 });
-                total = quantity * widget.service!.price!;
+                total = quantity * widget.snapshot['price'];
                 userService.updateCart(docId, quantity, total, context);
                 updating = false;
               },
               child: const Icon(CupertinoIcons.add)),
         ),
       ],
-    );
+    ) :
+      const Icon(CupertinoIcons.add);
 
   }
 }

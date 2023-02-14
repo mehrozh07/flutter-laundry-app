@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:laundary_system/pages/cart-screen/cart_widget.dart';
 import 'package:laundary_system/providers/service_provider.dart';
 import 'package:laundary_system/route_names.dart';
 import 'package:laundary_system/widgets/add_to_cart_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../providers/cart_provider.dart';
 import '../../services/user_service.dart';
 import '../../utils/Utils_widget.dart';
 
@@ -37,10 +39,90 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    var text = MediaQuery.textScaleFactorOf(context);
     var serviceProvider = Provider.of<ServiceProvider>(context);
     serviceProvider.getService();
+    var cartProvider = Provider.of<CartProvider>(context);
+    cartProvider.getSubTotal();
+    cartProvider.confirmOrder();
     return SafeArea(
       child: Scaffold(
+        backgroundColor: const Color(0xffFFFFFF),
+        bottomSheet: cartProvider.totalQuantity != 0?
+        Container(
+          height: height*0.19,
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 8,
+                  spreadRadius: 0.6,
+                  offset: Offset(0.1, 0.1),
+                )
+              ],
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),)
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  visualDensity: const VisualDensity(horizontal: -4),
+                  leading: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      visualDensity: const VisualDensity(horizontal: -4),
+                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.15),
+                      shape: const CircleBorder(),
+                    ),
+                    child: Icon(
+                      CupertinoIcons.cube,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {},
+                  ),
+                  title: Text('Total', style: Utils.subtitle),
+                  subtitle: Text('${cartProvider.totalQuantity}',
+                    style: TextStyle(
+                      fontSize: text*18,
+                      color: const Color(0xff292929),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('Cost', style: Utils.subtitle),
+                      Text('Rs.${cartProvider.total}',
+                          style: Utils.headlineTextStyle),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AbsorbPointer(
+                        absorbing: cartProvider.totalQuantity == 0.0 ? true : false,
+                        child: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            color: cartProvider.totalQuantity == 0.0 ?
+                            Theme.of(context).primaryColor.withOpacity(0.2) : Theme.of(context).primaryColor,
+                            child: const Text('Confirm Order'),
+                            onPressed: (){
+                              Navigator.pushNamed(context, RoutesNames.scheduledPickUp);
+                            }),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ) : Container(),
         body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('myCart').doc(FirebaseAuth.instance.currentUser?.uid)
               .collection('products')
@@ -119,89 +201,13 @@ class _CartPageState extends State<CartPage> {
             if(snapshot.data!.docs.isEmpty){
               return const Center(child: Text("Your Cart is Empty"));
             }
-            return ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                return ListTile(
-
-                  title: Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text('${document['name']}',
-                          style: Utils.orderListName),
-                      Text(' (${document["serviceType"]})',
-                          style: Utils.textSubtitle),
-                    ],
-                  ),
-                  subtitle: Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    alignment: WrapAlignment.start,
-                    children: [
-                      Text('Rs.${document['price']}',
-                        style: Utils.headlineTextStyle,),
-                      SizedBox(width: width*0.01),
-                      SizedBox(
-                        height: height*0.07,
-                        width: width*0.26,
-                        child: FormField<String>(
-                          validator: (value){
-                            if(value!.isEmpty){
-                              return "*gender";
-                            }
-                            setState(() {
-                              _category = value;
-                            });
-                            return null;
-                          },
-                          builder: (FormFieldState<String> state) {
-                            return InputDecorator(
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none,
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  icon: const Icon(CupertinoIcons.chevron_down,
-                                    color: Color(0xff38106A),
-                                  ),
-                                  style: Utils.simpleText,
-                                  hint: Text(
-                                    "gender?",
-                                    style: Utils.simpleText,
-                                  ),
-                                  items: categoryList.map<DropdownMenuItem<String>>(
-                                          (String? value) {
-                                        return DropdownMenuItem(
-                                          value: value,
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: width*0.02,
-                                              ),
-                                              Text("$value"),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                  isExpanded: true,
-                                  isDense: true,
-                                  onChanged: (String? newSelectedBank) {
-                                    _onDropDownItemSelected(newSelectedBank);
-                                  },
-                                  value: _category,
-
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  trailing: AddToCartWidget(
-                    productId: document['cartId'],
-                  ),
-                );
-              }).toList(),
+            return Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: ListView(
+                children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                  return CartWidget(document: document);
+                }).toList(),
+              ),
             );
           },
         ),

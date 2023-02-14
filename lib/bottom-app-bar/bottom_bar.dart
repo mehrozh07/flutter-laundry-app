@@ -5,15 +5,15 @@ import 'package:laundary_system/pages/cart-screen/cart_page.dart';
 import 'package:laundary_system/pages/home-screen/home_page.dart';
 import 'package:laundary_system/pages/order-screens/order_page.dart';
 
-class MainScreen extends StatefulWidget {
+class BottomBar extends StatefulWidget {
   static const id = '/main-screen';
-  const MainScreen({Key? key}) : super(key: key);
+  const BottomBar({Key? key}) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<BottomBar> createState() => _BottomBarState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _BottomBarState extends State<BottomBar> {
 
   final screens = [
      HomePage(),

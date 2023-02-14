@@ -1,19 +1,20 @@
-import 'dart:io';
+// ignore_for_file: void_checks
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:laundary_system/bottom-app-bar/bottom_bar.dart';
 import 'package:laundary_system/generated/assets.dart';
 import 'package:laundary_system/providers/cart_provider.dart';
 import 'package:laundary_system/providers/user_provider.dart';
+import 'package:laundary_system/services/notification_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
 import '../../route_names.dart';
 import 'package:laundary_system/services/user_service.dart';
 import 'package:laundary_system/services/cart_service.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../location_screen/deliver_address.dart';
 import '../location_screen/pickup_address.dart';
@@ -67,6 +68,8 @@ class _SchedulePickupState extends State<SchedulePickup> {
   @override
   void initState() {
     getUserToken();
+    NotificationsService.initInfo(context);
+    NotificationsService.requestPermission(context);
     super.initState();
   }
 
@@ -78,7 +81,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
     var userProvider = Provider.of<UserProvider>(context);
     userProvider.getUserData();
     cartProvider.getSubTotal();
-
+    userProvider.getAdminToken();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -102,30 +105,31 @@ class _SchedulePickupState extends State<SchedulePickup> {
                     child: const Text('Confirm Order'),
                     onPressed: (){
                       if(userProvider.documentSnapshot?['pickUpLatitude'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
+                        return Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else
                       if(userProvider.documentSnapshot?['pickUpLongitude'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
+                        return Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else
                       if(userProvider.documentSnapshot?['deliveryLatitude'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
+                        return Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else
                       if(userProvider.documentSnapshot?['deliveryLongitude'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
+                        return Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else
                       if(userProvider.documentSnapshot?['pickupAddress'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
+                        return  Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else
                       if(userProvider.documentSnapshot?['deliveryAddress'] == null){
-                        Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
-                      }
-                      orderPlaced(
+                        return Utils.flushBarMessage(context, "please add your address", const Color(0xffED5050));
+                      }else {
+                        orderPlaced(
                           cartProvider: cartProvider,
                           paying: cartProvider.total,
                           context: context,
                           userProvider: userProvider,
                           token: deviceToken,
                       );
+                      }
                     }),
               ),
             ],
@@ -299,259 +303,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
                   ),
                   InkWell(
                     onTap: (){
-                      // showModalBottomSheet(
-                      //     context: context,
-                      //     shape: const RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.only(
-                      //           topRight: Radius.circular(20),
-                      //           topLeft: Radius.circular(20),
-                      //         )),
-                      //     builder: (context){
-                      //       return Padding(
-                      //         padding: const EdgeInsets.only(left: 8, right: 8),
-                      //         child: Column(
-                      //           crossAxisAlignment: CrossAxisAlignment.start,
-                      //           children: [
-                      //             ListTile(
-                      //               contentPadding: EdgeInsets.zero,
-                      //               title: Text(
-                      //                 'Add Visa/Master Card',
-                      //                 style: Utils.orderListName,
-                      //               ),
-                      //               trailing: TextButton(
-                      //                   onPressed: () {
-                      //                     Navigator.pop(context);
-                      //                   },
-                      //                   child: const Icon(Icons.close)),
-                      //             ),
-                      //             const Divider(thickness: 2,),
-                      //             Text('Card Number', style: Utils.masterCard,),
-                      //             TextFormField(
-                      //               controller: cardNumber,
-                      //               keyboardType: TextInputType.number,
-                      //               validator: (value) {
-                      //                 if (value!.isEmpty) {
-                      //                   return 'enter card number';
-                      //                 }
-                      //                 return null;
-                      //               },
-                      //               decoration: InputDecoration(
-                      //                 hintText: "Card number",
-                      //                 prefixIcon: const Icon(CupertinoIcons.creditcard),
-                      //                 contentPadding: EdgeInsets.only(left: width * 0.03, right: 0, top: 0, bottom: 0),
-                      //                 border: OutlineInputBorder(
-                      //                   borderRadius: BorderRadius.circular(8),
-                      //                   borderSide: const BorderSide(
-                      //                     color: Color(0xffE9EBF0),
-                      //                   ),
-                      //                 ),
-                      //                 fillColor: const Color(0xffF3F3F3),
-                      //                 filled: true,
-                      //               ),
-                      //             ),
-                      //             SizedBox(
-                      //               height: height * 0.03,
-                      //             ),
-                      //             Row(
-                      //               children: [
-                      //                 Expanded(
-                      //                   flex: 2,
-                      //                   child: Column(
-                      //                     crossAxisAlignment: CrossAxisAlignment.start,
-                      //                     children: [
-                      //                       Wrap(
-                      //                         crossAxisAlignment: WrapCrossAlignment.center,
-                      //                         children: [
-                      //                           Text('Card Number ', style: Utils.masterCard,),
-                      //                           Text('(Month - year)', style: Utils.textSubtitle,),
-                      //                         ],
-                      //                       ),
-                      //                       Row(
-                      //                         children: [
-                      //                           //
-                      //                           Expanded(
-                      //                             child: FormField<String>(
-                      //                               builder: (FormFieldState<String> state) {
-                      //                                 return InputDecorator(
-                      //                                   decoration: InputDecoration(
-                      //                                     contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                      //                                     errorStyle: const TextStyle(
-                      //                                         color: Colors.redAccent, fontSize: 16.0),
-                      //                                     border: OutlineInputBorder(
-                      //                                         borderRadius:
-                      //                                         BorderRadius.circular(10.0)),
-                      //                                   ),
-                      //                                   child: DropdownButtonHideUnderline(
-                      //                                     child: DropdownButton<String>(
-                      //                                       style: const TextStyle(
-                      //                                         fontSize: 16,
-                      //                                         color: Colors.grey,
-                      //                                       ),
-                      //                                       hint: const Text(
-                      //                                         "mm",
-                      //                                         style: TextStyle(
-                      //                                           color: Colors.grey,
-                      //                                           fontSize: 16,
-                      //                                         ),
-                      //                                       ),
-                      //                                       items: categoryList
-                      //                                           .map<DropdownMenuItem<String>>(
-                      //                                               (String? value) {
-                      //                                             return DropdownMenuItem(
-                      //                                               value: value,
-                      //                                               child: Row(
-                      //                                                 children: [
-                      //                                                   const SizedBox(
-                      //                                                     width: 15,
-                      //                                                   ),
-                      //                                                   Text(value!),
-                      //                                                 ],
-                      //                                               ),
-                      //                                             );
-                      //                                           }).toList(),
-                      //
-                      //                                       isExpanded: true,
-                      //                                       isDense: true,
-                      //                                       onChanged: (String? newSelectedBank) {
-                      //                                         _onDropDownItemSelected(newSelectedBank);
-                      //                                       },
-                      //                                       value: _category,
-                      //
-                      //                                     ),
-                      //                                   ),
-                      //                                 );
-                      //                               },
-                      //                             ),
-                      //                           ),
-                      //                           SizedBox(width: width*0.02),
-                      //                           Expanded(
-                      //                             child: FormField<String>(
-                      //                               builder: (FormFieldState<String> state) {
-                      //                                 return InputDecorator(
-                      //                                   decoration: InputDecoration(
-                      //                                       contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                      //                                       errorStyle: const TextStyle(
-                      //                                           color: Colors.redAccent, fontSize: 16.0),
-                      //                                       border: OutlineInputBorder(
-                      //                                           borderRadius:
-                      //                                           BorderRadius.circular(10.0))),
-                      //                                   child: DropdownButtonHideUnderline(
-                      //                                     child: DropdownButton<String>(
-                      //                                       style: const TextStyle(
-                      //                                         fontSize: 16,
-                      //                                         color: Colors.grey,
-                      //                                       ),
-                      //                                       hint: const Text(
-                      //                                         "mm",
-                      //                                         style: TextStyle(
-                      //                                           color: Colors.grey,
-                      //                                           fontSize: 16,
-                      //                                         ),
-                      //                                       ),
-                      //                                       items: categoryList
-                      //                                           .map<DropdownMenuItem<String>>(
-                      //                                               (String? value) {
-                      //                                             return DropdownMenuItem(
-                      //                                               value: value,
-                      //                                               child: Row(
-                      //                                                 children: [
-                      //                                                   const SizedBox(
-                      //                                                     width: 15,
-                      //                                                   ),
-                      //                                                   Text(value!),
-                      //                                                 ],
-                      //                                               ),
-                      //                                             );
-                      //                                           }).toList(),
-                      //
-                      //                                       isExpanded: true,
-                      //                                       isDense: true,
-                      //                                       onChanged: (String? newSelectedBank) {
-                      //                                         _onDropDownItemSelected(newSelectedBank);
-                      //                                       },
-                      //                                       value: _category,
-                      //
-                      //                                     ),
-                      //                                   ),
-                      //                                 );
-                      //                               },
-                      //                             ),
-                      //                           ),
-                      //                         ],
-                      //                       ),
-                      //                     ],
-                      //                   ),
-                      //                 ),
-                      //                 SizedBox(width: width*0.02),
-                      //                 Expanded(
-                      //                   flex: 1,
-                      //                   child: Column(
-                      //                     children: [
-                      //                       Text('Card Code', style: Utils.masterCard),
-                      //                       TextFormField(
-                      //                         decoration: InputDecoration(
-                      //                             contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                      //                             hintText: "CVC",
-                      //                             errorStyle: const TextStyle(
-                      //                                 color: Colors.redAccent, fontSize: 16.0),
-                      //                             border: OutlineInputBorder(
-                      //                                 borderRadius:
-                      //                                 BorderRadius.circular(10.0))),
-                      //                       ),
-                      //                     ],
-                      //                   ),
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //             SizedBox(
-                      //               height: height * 0.03,
-                      //             ),
-                      //             Text('Name on Card',
-                      //                 textAlign: TextAlign.start,
-                      //                 style: Utils.masterCard),
-                      //             TextFormField(
-                      //               controller: cardOnName,
-                      //               keyboardType: TextInputType.phone,
-                      //               validator: (value) {
-                      //                 if (value!.isEmpty) {
-                      //                   return 'Please your name on card';
-                      //                 }
-                      //                 return null;
-                      //               },
-                      //               decoration: InputDecoration(
-                      //                 hintText: "Please your name on card",
-                      //                 // prefixIcon: const Icon(CupertinoIcons.creditcard),
-                      //                 contentPadding: EdgeInsets.only(left: width * 0.04, right: 0, top: 0, bottom: 0),
-                      //                 border: OutlineInputBorder(
-                      //                   borderRadius: BorderRadius.circular(8),
-                      //                   borderSide: const BorderSide(
-                      //                     color: Color(0xffE9EBF0),
-                      //                     width: 0.5,
-                      //                   ),
-                      //                 ),
-                      //                 fillColor: const Color(0xffF3F3F3),
-                      //                 filled: true,
-                      //               ),
-                      //             ),
-                      //             SizedBox(
-                      //               height: height * 0.02,
-                      //             ),
-                      //             Row(
-                      //               children: [
-                      //                 Expanded(
-                      //                   child: CupertinoButton(
-                      //                     padding: EdgeInsets.zero,
-                      //                     color: Theme.of(context).primaryColor,
-                      //                     child: const Text("Save & Continue"),
-                      //                     onPressed: (){},
-                      //                   ),
-                      //                 ),
-                      //               ],
-                      //             )
-                      //           ],
-                      //         ),
-                      //       );
-                      //     });
+
                     },
                     child: RadioListTile<Payment>(
                       visualDensity: const VisualDensity(vertical: -4.0,),
@@ -660,7 +412,7 @@ class _SchedulePickupState extends State<SchedulePickup> {
       "pickupTime": Timestamp.fromDate(DateTime.parse(pickUpTime.text)),
       "deliveryTime": Timestamp.fromDate(DateTime.parse(deliveryTime.text)),
       "orderPlacingTime": DateTime.now(),
-      "orderId": Random().nextInt(10000).toString(),
+      "orderId": Random().nextInt(1000).toString(),
       "orderStatus": "Placed",
       "userDeviceToken": token,
       "orderConfirmTime": null,
@@ -676,7 +428,14 @@ class _SchedulePickupState extends State<SchedulePickup> {
     }).then((value){
       userService.deleteCart().then((value){
         // userService.checkCart(docId: widget.docId, context: context);
-        Navigator.pushReplacementNamed(context, RoutesNames.orderDetails);
+        Navigator.popUntil(context, (route) => route.isFirst);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const BottomBar()));
+        Utils.flushBarMessage(context, "Your Order has been placed successfully", Colors.green);
+        NotificationsService.sendPushNotification(
+          token: "${userProvider?.adminToken}",
+          title: "Momy Laundry",
+          body: "Congratulations! You just receive a new order!",
+        );
       });
     });
   }

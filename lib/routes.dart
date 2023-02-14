@@ -27,7 +27,7 @@ class Routes{
       case RoutesNames.orderDetails:
         return CupertinoPageRoute(builder: (_)=>  OrderDetails());
       case RoutesNames.mainScreen:
-        return CupertinoPageRoute(builder: (_)=> const MainScreen());
+        return CupertinoPageRoute(builder: (_)=> const BottomBar());
       case RoutesNames.scheduledPickUp:
         return CupertinoPageRoute(builder: (_)=> SchedulePickup());
       case RoutesNames.pickUpAddress:

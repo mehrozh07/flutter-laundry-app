@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:laundary_system/services/order_service.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
+import 'package:intl/intl.dart';
 
 class OrderDetails extends StatelessWidget {
   final DocumentSnapshot? snapshot;
@@ -86,7 +87,8 @@ class OrderDetails extends StatelessWidget {
                       ),
                     ],
                   ),
-                  subtitle: orderService.getOrderPickupDateTime(snapshot),
+                  subtitle: Text("${DateFormat("MMM d, yyyy").format(snapshot?['pickupTime'].toDate())} to "
+                      "${DateFormat("MMM d, yyyy").format(snapshot?['deliveryTime'].toDate())}"),
                 ),
                 const Padding(
                   padding: EdgeInsets.only(left: 10, right: 10),
@@ -101,6 +103,7 @@ class OrderDetails extends StatelessWidget {
                 // ),
                 ListView.builder(
                     shrinkWrap: true,
+                     physics: const BouncingScrollPhysics(),
                      itemCount: snapshot?['laundries'].length,
                     itemBuilder: (context, index){
                   return ExpansionTile(

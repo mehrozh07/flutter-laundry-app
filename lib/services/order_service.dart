@@ -63,7 +63,7 @@ class OrderService{
    }
 
    Text? getOrderPickupDateTime(snapshot){
-     if(snapshot['pickupTime'] == null && snapshot['deliveryTime'] == null){
+     if(snapshot['pickupTime'] == null){
        return const Text("wait!");
      }else{
        return Text("${DateFormat("MMM d, yyyy").format(snapshot?['pickupTime'].toDate())} to "

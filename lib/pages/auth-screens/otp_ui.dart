@@ -133,7 +133,7 @@ class OtpUi extends StatelessWidget {
                       if(state is AuthLoggedInState){
                         Navigator.popUntil(context, (route) => route.isFirst);
                         Navigator.pushReplacement(context, CupertinoPageRoute(
-                            builder: (context)=> const MainScreen()));
+                            builder: (context)=> const BottomBar()));
                       }else if(state is AuthFillFormState){
                         Navigator.pushReplacement(context, CupertinoPageRoute(
                             builder: (context)=> FillForm()));

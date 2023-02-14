@@ -39,7 +39,7 @@ class _PickUpAddressState extends State<PickUpAddress> {
   Widget build(BuildContext context) {
     var locationProvider = Provider.of<LocationProvider>(context);
     setState(() {
-      currentLocation = LatLng(locationProvider.position!.latitude, locationProvider.position!.longitude);
+      currentLocation = LatLng(locationProvider.latLng.latitude, locationProvider.latLng.longitude);
     });
     return SafeArea(
       child: Scaffold(

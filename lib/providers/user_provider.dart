@@ -56,4 +56,19 @@ class UserProvider extends ChangeNotifier{
     }
     return image;
   }
+
+   String? _adminToken;
+  String? get adminToken => _adminToken;
+
+  getAdminToken(){
+    FirebaseFirestore.instance
+        .collection('admins')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        _adminToken = doc['adminToken'];
+        notifyListeners();
+      }
+    });
+  }
 }

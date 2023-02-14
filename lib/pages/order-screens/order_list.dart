@@ -141,58 +141,58 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
       ),
       body: CustomScrollView(
         slivers: [
-           SliverAppBar(
-             automaticallyImplyLeading: false,
-           flexibleSpace: Container(
-             height: height*0.06,
-             decoration: const BoxDecoration(
-               color: Colors.white,
-             ),
-             child: TabBar(
-               controller: _tabController,
-               onTap: (value){
-                 if(value == 0){
-                   setState(() {
-
-                   });
-                 }
-                 setState(() {
-                   tag = value;
-
-                 });
-               },
-               dragStartBehavior: DragStartBehavior.start,
-               padding: EdgeInsets.zero,
-               automaticIndicatorColorAdjustment: true,
-               physics: const BouncingScrollPhysics(),
-               indicatorWeight: 0.1,
-               isScrollable: true,
-               labelColor: Colors.black,
-               indicatorColor: const Color(0xff38106A),
-               unselectedLabelColor: const Color(0xff38106A),
-               indicatorSize: TabBarIndicatorSize.label,
-                 tabs: List.generate(
-                     options.length,
-                         (index) {
-                       return Container(
-                           padding: const EdgeInsets.only(left: 4, right: 4,top: 2,bottom: 2),
-                           decoration:  BoxDecoration(
-                           shape: BoxShape.rectangle,
-                           color: Colors.white,
-                           border: Border.all(color: Theme.of(context).primaryColor),
-                           ),
-                         child: Text(options[index],
-                           style: TextStyle(
-                             fontSize: 16,
-                             color: options[index].isEmpty ? Colors.black54 : const Color(0xff38106A),
-                             fontWeight: FontWeight.bold,
-                           ),
-                         ),
-                       );
-                         }),
-             ),
-           ),
-          ),
+          //  SliverAppBar(
+          //    automaticallyImplyLeading: false,
+          //  flexibleSpace: Container(
+          //    height: height*0.06,
+          //    decoration: const BoxDecoration(
+          //      color: Colors.white,
+          //    ),
+          //    child: TabBar(
+          //      controller: _tabController,
+          //      onTap: (value){
+          //        if(value == 0){
+          //          setState(() {
+          //
+          //          });
+          //        }
+          //        setState(() {
+          //          tag = value;
+          //
+          //        });
+          //      },
+          //      dragStartBehavior: DragStartBehavior.start,
+          //      padding: EdgeInsets.zero,
+          //      automaticIndicatorColorAdjustment: true,
+          //      physics: const BouncingScrollPhysics(),
+          //      indicatorWeight: 0.1,
+          //      isScrollable: true,
+          //      labelColor: Colors.black,
+          //      indicatorColor: const Color(0xff38106A),
+          //      unselectedLabelColor: const Color(0xff38106A),
+          //      indicatorSize: TabBarIndicatorSize.label,
+          //        tabs: List.generate(
+          //            options.length,
+          //                (index) {
+          //              return Container(
+          //                  padding: const EdgeInsets.only(left: 4, right: 4,top: 2,bottom: 2),
+          //                  decoration:  BoxDecoration(
+          //                  shape: BoxShape.rectangle,
+          //                  color: Colors.white,
+          //                  border: Border.all(color: Theme.of(context).primaryColor),
+          //                  ),
+          //                child: Text(options[index],
+          //                  style: TextStyle(
+          //                    fontSize: 16,
+          //                    color: options[index].isEmpty ? Colors.black54 : const Color(0xff38106A),
+          //                    fontWeight: FontWeight.bold,
+          //                  ),
+          //                ),
+          //              );
+          //                }),
+          //    ),
+          //  ),
+          // ),
           SliverList(
               delegate: SliverChildBuilderDelegate(
                 childCount: serviceProvider.categoryProductByCategoies.length,
@@ -229,63 +229,63 @@ class _OrderListState extends State<OrderList> with SingleTickerProviderStateMix
                           children: [
                             Text('Rs.${service.price}',
                               style: Utils.headlineTextStyle,),
-                            SizedBox(width: width*0.01),
-                            SizedBox(
-                              height: height*0.07,
-                              width: width*0.26,
-                              child: FormField<String>(
-                                validator: (value){
-                                  if(value!.isEmpty){
-                                    return "*gender";
-                                  }
-                                  setState(() {
-                                    _category = value;
-                                  });
-                                  return null;
-                                },
-                                builder: (FormFieldState<String> state) {
-                                  return InputDecorator(
-                                    decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.zero,
-                                      border: InputBorder.none,
-                                    ),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        icon: const Icon(CupertinoIcons.chevron_down,
-                                          color: Color(0xff38106A),
-                                        ),
-                                        style: Utils.simpleText,
-                                        hint: Text(
-                                          "gender?",
-                                          style: Utils.simpleText,
-                                        ),
-                                        items: categoryList.map<DropdownMenuItem<String>>(
-                                                (String? value) {
-                                              return DropdownMenuItem(
-                                                value: value,
-                                                child: Row(
-                                                  children: [
-                                                     SizedBox(
-                                                      width: width*0.02,
-                                                    ),
-                                                    Text("$value"),
-                                                  ],
-                                                ),
-                                              );
-                                            }).toList(),
-                                        isExpanded: true,
-                                        isDense: true,
-                                        onChanged: (String? newSelectedBank) {
-                                          _onDropDownItemSelected(newSelectedBank);
-                                        },
-                                        value: _category,
-
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
+                            // SizedBox(width: width*0.01),
+                            // SizedBox(
+                            //   height: height*0.07,
+                            //   width: width*0.26,
+                            //   child: FormField<String>(
+                            //     validator: (value){
+                            //       if(value!.isEmpty){
+                            //         return "*gender";
+                            //       }
+                            //       setState(() {
+                            //         _category = value;
+                            //       });
+                            //       return null;
+                            //     },
+                            //     builder: (FormFieldState<String> state) {
+                            //       return InputDecorator(
+                            //         decoration: const InputDecoration(
+                            //             contentPadding: EdgeInsets.zero,
+                            //           border: InputBorder.none,
+                            //         ),
+                            //         child: DropdownButtonHideUnderline(
+                            //           child: DropdownButton<String>(
+                            //             icon: const Icon(CupertinoIcons.chevron_down,
+                            //               color: Color(0xff38106A),
+                            //             ),
+                            //             style: Utils.simpleText,
+                            //             hint: Text(
+                            //               "gender?",
+                            //               style: Utils.simpleText,
+                            //             ),
+                            //             items: categoryList.map<DropdownMenuItem<String>>(
+                            //                     (String? value) {
+                            //                   return DropdownMenuItem(
+                            //                     value: value,
+                            //                     child: Row(
+                            //                       children: [
+                            //                          SizedBox(
+                            //                           width: width*0.02,
+                            //                         ),
+                            //                         Text("$value"),
+                            //                       ],
+                            //                     ),
+                            //                   );
+                            //                 }).toList(),
+                            //             isExpanded: true,
+                            //             isDense: true,
+                            //             onChanged: (String? newSelectedBank) {
+                            //               _onDropDownItemSelected(newSelectedBank);
+                            //             },
+                            //             value: _category,
+                            //
+                            //           ),
+                            //         ),
+                            //       );
+                            //     },
+                            //   ),
+                            // ),
                           ],
                         ),
                         trailing: AddToCartWidget(

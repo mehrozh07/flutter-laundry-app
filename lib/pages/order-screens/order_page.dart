@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:laundary_system/Repositry/Shimmer/shimmer_effect.dart';
 import 'package:laundary_system/pages/order-screens/order_details.dart';
 import 'package:laundary_system/utils/Utils_widget.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:intl/intl.dart';
 
 class OrderPage extends StatelessWidget {

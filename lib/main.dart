@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +16,12 @@ import 'package:laundary_system/routes.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> _firebaseBackgroundMessageHandler(RemoteMessage message) async{
+  if (kDebugMode) {
+    print(".................Handle background messages ${message.messageId}");
+  }
+}
 
 Map<int, Color> color = {
   50: const Color.fromRGBO(206, 21, 103, .1),
@@ -32,6 +40,8 @@ Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp();
+  FirebaseMessaging.instance.getInitialMessage();
+  FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessageHandler);
   final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
   prefs.timeout(const Duration(seconds: 10));
   runApp(MultiBlocProvider(providers: [
