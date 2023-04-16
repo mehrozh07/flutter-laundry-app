@@ -9,8 +9,9 @@ class CustomField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(4.0),
-      child: AspectRatio(
-        aspectRatio: 0.9,
+      child: SizedBox(
+        height: 45,
+        width: 45,
         child: TextFormField(
           controller: controller,
           style: TextStyle(fontSize: MediaQuery.textScaleFactorOf(context)*30),

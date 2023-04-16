@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,20 +8,18 @@ import '../utils/Utils_widget.dart';
 import 'package:http/http.dart' as http;
 
 class NotificationsService{
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
 
   static void requestPermission(context) async{
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     NotificationSettings setting = await messaging.requestPermission(
       sound: true,
       alert: true,
-      announcement: false,
+      announcement: true,
       badge: true,
-      carPlay: false,
-      provisional: false,
-      criticalAlert: false,
+      carPlay: true,
+      provisional: true,
+      criticalAlert: true,
     );
     if(setting.authorizationStatus == AuthorizationStatus.authorized){
       if (kDebugMode) {
@@ -117,10 +113,8 @@ class NotificationsService{
       );
     }catch(e){
       if (kDebugMode) {
-        print('........ERORRRRRRRRRRRRRRRR${e.toString()}');
+        print('........ERORRRRRRRRRRRRRRRR${e.toString()}...................');
       }
     }
   }
-
-
 }

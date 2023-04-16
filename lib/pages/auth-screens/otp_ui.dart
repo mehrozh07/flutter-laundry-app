@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +20,19 @@ class OtpUi extends StatelessWidget {
   final otpController4 = TextEditingController();
   final otpController5 = TextEditingController();
   final otpController6 = TextEditingController();
+
+  late Timer _timer;
+  int _start = 60;
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_start == 0) {
+        _timer.cancel();
+      } else {
+        _start--;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,12 +128,18 @@ class OtpUi extends StatelessWidget {
                     'Did’t received OTP ? ',
                     style: Utils.simpleTitleStyle,
                   ),
-                  InkWell(
-                    onTap: () {},
-                    child: Text(
-                      'Send again',
-                      style: Utils.coloredTextStyle,
-                    ),
+                  BlocBuilder<AuthCubit, AuthState>(
+                    builder: (context, state) {
+                      return InkWell(
+                        onTap: () {
+                          BlocProvider.of<AuthCubit>(context).resendSendOtp(context);
+                        },
+                        child: Text(
+                          'Send again',
+                          style: Utils.coloredTextStyle,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -130,25 +151,32 @@ class OtpUi extends StatelessWidget {
                   Expanded(
                       child: BlocConsumer<AuthCubit, AuthState>(
                     listener: (context, state) {
-                      if(state is AuthLoggedInState){
+                      if (state is AuthLoggedInState) {
                         Navigator.popUntil(context, (route) => route.isFirst);
-                        Navigator.pushReplacement(context, CupertinoPageRoute(
-                            builder: (context)=> const BottomBar()));
-                      }else if(state is AuthFillFormState){
-                        Navigator.pushReplacement(context, CupertinoPageRoute(
-                            builder: (context)=> FillForm()));
-                      }else if(state is ErrorState){
-                          Utils.flushBarMessage(context, state.error, const Color(0xffED5050));
-                        }
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => const BottomBar()));
+                      } else if (state is AuthFillFormState) {
+                        Navigator.pushReplacement(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => FillForm()));
+                      } else if (state is ErrorState) {
+                        Utils.flushBarMessage(
+                            context, state.error, const Color(0xffED5050));
+                      }
                     },
                     builder: (context, state) {
-                      if(state is AuthLoadingState){
+                      if (state is AuthLoadingState) {
                         showDialog<void>(
                             context: context,
                             barrierDismissible: false,
                             builder: (BuildContext dialogContext) {
-                              return Center(child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation(Theme.of(dialogContext).primaryColor),
+                              return Center(
+                                  child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation(
+                                    Theme.of(dialogContext).primaryColor),
                               ));
                             });
                       }
@@ -161,10 +189,13 @@ class OtpUi extends StatelessWidget {
                         ),
                         onPressed: () {
                           BlocProvider.of<AuthCubit>(context).verifyOTP(
-                              otp:
-                              otpController1.text+otpController2.text+otpController3.text+
-                              otpController4.text+otpController5.text+otpController6.text,
-                              context: context,
+                            otp: otpController1.text +
+                                otpController2.text +
+                                otpController3.text +
+                                otpController4.text +
+                                otpController5.text +
+                                otpController6.text,
+                            context: context,
                           );
                           // if(BlocProvider.of<AuthCubit>(context).auth != null){
                           //

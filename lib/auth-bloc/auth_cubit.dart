@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +14,8 @@ class AuthCubit extends Cubit<AuthState> {
   final auth = FirebaseAuth.instance;
   String? verificationId;
   UserService userService = UserService();
+  Timer? _timer;
+  int _start = 60;
 
   AuthCubit() : super(AuthInitialState()){
   User? user = auth.currentUser;
@@ -26,6 +30,7 @@ class AuthCubit extends Cubit<AuthState> {
     return auth.authStateChanges();
   }
  var number;
+  var _resendToken;
   void sendOtp(phoneNumber, context){
     number = phoneNumber;
     auth.verifyPhoneNumber(
@@ -46,6 +51,8 @@ class AuthCubit extends Cubit<AuthState> {
         codeSent: (String verificationId, int? resendToken) {
           emit(AuthCodeSendState());
           this.verificationId = verificationId;
+          _resendToken = resendToken;
+
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           this.verificationId = verificationId;
@@ -79,6 +86,48 @@ class AuthCubit extends Cubit<AuthState> {
     } on FirebaseAuthException catch(e){
       Utils.flushBarMessage(context, e.toString(), const Color(0xffFF8C00));
     }
+  }
+
+  void resendSendOtp(context){
+    auth.verifyPhoneNumber(
+      phoneNumber: number,
+      verificationCompleted: (PhoneAuthCredential credential){
+        signInWithPhoneNumber(credential, context);
+      },
+      verificationFailed:  (FirebaseAuthException e){
+        // emit(ErrorState(e.message));
+        if (e.code == 'invalid-phone-number') {
+          emit(ErrorState("The provided phone number is not valid"));
+          // Utils.flushBarMessage(context, e.code.toString(), const Color(0xffFF8C00));
+          if (kDebugMode) {
+            print(e.message);
+          }
+        }
+      },
+      codeSent: (String verificationId, int? resendToken) {
+        emit(AuthCodeSendState());
+        this.verificationId = verificationId;
+        _resendToken = resendToken;
+        _start = 60;
+        startTimer();
+        print(_start);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        this.verificationId = verificationId;
+      },
+      timeout: const Duration(seconds: 60),
+      forceResendingToken: _resendToken,
+    );
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_start == 0) {
+        _timer?.cancel();
+      } else {
+        _start--;
+      }
+    });
   }
 
   void logout() async{

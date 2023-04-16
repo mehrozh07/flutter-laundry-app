@@ -20,7 +20,7 @@ class PhoneLoginUi extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).unfocus();
         },
         child: ListView(
@@ -53,30 +53,30 @@ class PhoneLoginUi extends StatelessWidget {
             SizedBox(
               height: height * 0.1,
             ),
-             CupertinoTextField(
-               controller: phoneController,
-               clearButtonMode: OverlayVisibilityMode.editing,
+            CupertinoTextField(
+              controller: phoneController,
+              clearButtonMode: OverlayVisibilityMode.editing,
               keyboardType: TextInputType.phone,
               placeholder: "phone number",
-               maxLengthEnforcement: MaxLengthEnforcement.enforced,
-               onChanged: (v) {
-                 if (v.isEmpty) {
-                   Utils.flushBarMessage(
-                       context,
-                       "enter phone number",
-                       const Color(0xffED5050),
-                   );
-                 }
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+              onChanged: (v) {
+                if (v.isEmpty) {
+                  Utils.flushBarMessage(
+                    context,
+                    "enter phone number",
+                    const Color(0xffED5050),
+                  );
+                }
+
                 return;
-               },
+              },
               decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 2.0,
-                    color: Theme.of(context).primaryColor,
-                  ),
+                border: Border.all(
+                  width: 2.0,
+                  color: Theme.of(context).primaryColor,
+                ),
                 borderRadius: BorderRadius.circular(4.0),
               ),
-
             ),
             // TextFormField(
             //   controller: phoneController,
@@ -139,16 +139,17 @@ class PhoneLoginUi extends StatelessWidget {
                   color: Theme.of(context).primaryColor,
                   padding: EdgeInsets.zero,
                   child: BlocBuilder<AuthCubit, AuthState>(
-                   builder: (context, state) {
-                     if(state is AuthLoadingState){
-                       return CircularProgressIndicator(
-                         valueColor: AlwaysStoppedAnimation(
-                             Theme.of(context).canvasColor),
-                       );
-                     }
-                   return const Text('Login');
-  },
-),
+                    builder: (context, state) {
+                      if (state is AuthLoadingState) {
+                        return CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(
+                              Theme.of(context).canvasColor),
+                        );
+                      }else {
+                        return const Text('Login');
+                      }
+                    },
+                  ),
                   onPressed: () {
                     BlocProvider.of<AuthCubit>(context)
                         .sendOtp(phoneController.text, context);
@@ -183,7 +184,8 @@ class PhoneLoginUi extends StatelessWidget {
                   style: IconButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(100),
-                        side: BorderSide(color: Theme.of(context).primaryColor)),
+                        side:
+                            BorderSide(color: Theme.of(context).primaryColor)),
                   ),
                   onPressed: () {},
                   icon: Icon(FontAwesomeIcons.facebook,
@@ -197,8 +199,8 @@ class PhoneLoginUi extends StatelessWidget {
                     style: IconButton.styleFrom(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(100),
-                          side:
-                              BorderSide(color: Theme.of(context).primaryColor)),
+                          side: BorderSide(
+                              color: Theme.of(context).primaryColor)),
                     ),
                     onPressed: () {},
                     icon: Icon(FontAwesomeIcons.google,
